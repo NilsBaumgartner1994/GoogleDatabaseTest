@@ -9,16 +9,20 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.GenericJson;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.*;
 import com.google.api.services.sheets.v4.Sheets;
+import com.google.api.services.sheets.v4.Sheets.Spreadsheets.BatchUpdate;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -40,7 +44,7 @@ public class Quickstart {
 	/** Global instance of the JSON factory. */
 	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
-	private static String spreadsheetId = "1SkstzWkc2wZ-1iT0hSsgB2ADbxaWED1PRgCZBA8HF6U";
+	private static String spreadSheetId = "1SkstzWkc2wZ-1iT0hSsgB2ADbxaWED1PRgCZBA8HF6U";
 
 	/** Global instance of the HTTP transport. */
 	private static HttpTransport HTTP_TRANSPORT;
@@ -52,6 +56,8 @@ public class Quickstart {
 	 * ~/.credentials/sheets.googleapis.com-java-quickstart
 	 */
 	private static final List<String> SCOPES = Arrays.asList(SheetsScopes.SPREADSHEETS);
+
+	public static int maxRetriesForConnectionReset = 10;
 
 	private static String clientID = "None";
 
@@ -96,23 +102,27 @@ public class Quickstart {
 	 */
 	public static Sheets getSheetsService() throws IOException {
 		Credential credential = authorize();
-		
+
 		return new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName(APPLICATION_NAME)
 				.build();
 
 	}
-	
+
 	public static String getOwnIP() throws UnknownHostException {
 		InetAddress add = InetAddress.getLocalHost();
 		return add.getHostAddress();
 	}
-	
+
 	public static String getHostname() throws UnknownHostException {
 		return InetAddress.getLocalHost().getHostName();
 	}
-	
+
 	public static String getUsername() {
 		return System.getProperty("user.name");
+	}
+
+	public static String getTimeNow() {
+		return "" + new Date().getTime();
 	}
 
 	private static Sheets service;
@@ -122,44 +132,93 @@ public class Quickstart {
 		service = getSheetsService();
 
 		/**
-		writeIntoCell("A2","");
-		Logger.println(readCell("A2"));
-		writeIntoCell("A2","Hallo");
-		Logger.println(readCell("A2"));
+		 * writeIntoCell("A2",""); Logger.println(readCell("A2"));
+		 * writeIntoCell("A2","Hallo"); Logger.println(readCell("A2"));
+		 */
+		Logger.println(readCell("F1"));
+
+		appendRow(getHostname(), getOwnIP(), getTimeNow(), getUsername());
+		appendRow("Spiderman", "127.0.0.2", getTimeNow(), "PeterParker");
+		appendRow("Batman", "127.0.0.3", getTimeNow(), "BruceWayne");
+		writeIntoRow("A3", "CapAmerica", "127.0.0.4", getTimeNow(), "Steve");
+
+		Logger.println(readCell("F1"));
+		
+		
+
+	}
+
+	public static void appendRow(String... datas) {
+
+		List<RowData> rowData = new ArrayList<RowData>();
+		List<CellData> cellData = new ArrayList<CellData>();
+
+		for (String data : datas) {
+			CellData dateField = new CellData();
+			dateField.setUserEnteredValue(new ExtendedValue().setStringValue(data));
+			cellData.add(dateField);
+		}
+
+		rowData.add(new RowData().setValues(cellData));
+
+		BatchUpdateSpreadsheetRequest batchRequests = new BatchUpdateSpreadsheetRequest();
+		BatchUpdateSpreadsheetResponse response;
+		List<Request> requests = new ArrayList<Request>();
+
+		AppendCellsRequest appendCellReq = new AppendCellsRequest();
+		appendCellReq.setSheetId(0);
+		appendCellReq.setRows(rowData);
+		appendCellReq.setFields("userEnteredValue");
+
+		requests = new ArrayList<Request>();
+		requests.add(new Request().setAppendCells(appendCellReq));
+		batchRequests = new BatchUpdateSpreadsheetRequest();
+		batchRequests.setRequests(requests);
+
+		
+		
+		int retries = maxRetriesForConnectionReset;
+		while (retries > 0) {
+			try {
+				response = service.spreadsheets().batchUpdate(spreadSheetId, batchRequests).execute();
+				retries = 0;
+			} catch (SocketException | SocketTimeoutException e) {
+				String name = new Object() {
+				}.getClass().getEnclosingMethod().getName();
+				Logger.println(name + " | ConnectionResets: trying max " + retries + " other times!");
+				retries--;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				retries = 0;
+			}
+		}
+		/**
+		System.out.println("Request \n\n");
+		System.out.println(batchRequests.toPrettyString());
+		System.out.println("\n\nResponse \n\n");
+		System.out.println(response.toPrettyString());
 		*/
-		Logger.println(readCell("F1"));
-		
-		
-		writeIntoRow("A2",getHostname(),getOwnIP(),getTimeNow(),getUsername());
-		writeIntoRow("A3","Spiderman","127.0.0.2",getTimeNow(),"PeterParker");
-		writeIntoRow("A4","Batman","127.0.0.3",getTimeNow(),"BruceWayne");
-		writeIntoRow("A5","CapAmerica","127.0.0.4",getTimeNow(),"Steve");
-		
-		Logger.println(readCell("F1"));
 	}
-	
-	public static String getTimeNow() {
-		return ""+new Date().getTime();
-	}
-	
+
 	public static String getCellFromOffset(String startCell, int colInt) {
-		String colString = startCell.replaceAll("\\d","");
+		String colString = startCell.replaceAll("\\d", "");
 		Logger.println(colString);
-		
+
 		String row = startCell.replaceAll(colString, "");
 		int position = 0;
-		while(colInt>0) {
+		while (colInt > 0) {
 			int rest = colInt % 26;
-			int charPos = colString.length()-1-position;
+			int charPos = colString.length() - 1 - position;
 			char posChar = colString.charAt(charPos);
 			int posCharInt = Character.codePointAt(String.valueOf(posChar), 0);
-			char newChar = Character.toChars(posCharInt+rest)[0];
+			char newChar = Character.toChars(posCharInt + rest)[0];
 			StringBuilder tempString = new StringBuilder(colString);
 			tempString.setCharAt(charPos, newChar);
 			colInt = 0;
 			colString = tempString.toString();
 		}
-		return colString+row;
+		return colString + row;
 	}
 
 	public static String readCell(String cell) {
@@ -179,17 +238,29 @@ public class Quickstart {
 	}
 
 	public static List<List<Object>> readCells(String range) {
-		try {
-			ValueRange response = service.spreadsheets().values().get(spreadsheetId, range).execute();
-			List<List<Object>> values = response.getValues();
-			if (values == null || values.size() == 0) {
+
+		ValueRange response = null;
+		List<List<Object>> values = null;
+		int retries = maxRetriesForConnectionReset;
+		while (retries > 0) {
+			try {
+				response = service.spreadsheets().values().get(spreadSheetId, range).execute();
+				values = response.getValues();
+				if (values == null || values.size() == 0) {
+					return null;
+				} else {
+					return values;
+				}
+			} catch (SocketException | SocketTimeoutException e) {
+				String name = new Object() {
+				}.getClass().getEnclosingMethod().getName();
+				Logger.println(name + " | ConnectionResets: trying max " + retries + " other times!");
+				retries--;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 				return null;
-			} else {
-				return values;
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 
 		return null;
@@ -203,7 +274,7 @@ public class Quickstart {
 	 * row.get(0), row.get(4)); } }
 	 */
 
-	public static void findAndReplace(String find, String replace) throws IOException {
+	public static void findAndReplace(String find, String replace) {
 		List<Request> requests = new ArrayList<>();
 		// Change the spreadsheet's title.
 		requests.add(new Request().setUpdateSpreadsheetProperties(new UpdateSpreadsheetPropertiesRequest()
@@ -211,11 +282,31 @@ public class Quickstart {
 		// Find and replace text.
 		requests.add(new Request()
 				.setFindReplace(new FindReplaceRequest().setFind(find).setReplacement(replace).setAllSheets(true)));
-		
+
 		// Add additional requests (operations) ...
 
-		BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
-		BatchUpdateSpreadsheetResponse response = service.spreadsheets().batchUpdate(spreadsheetId, body).execute();
+		BatchUpdateSpreadsheetResponse response = null;
+
+		int retries = maxRetriesForConnectionReset;
+		while (retries > 0) {
+			try {
+				BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
+				response = service.spreadsheets().batchUpdate(spreadSheetId, body).execute();
+
+			} catch (SocketException e) {
+				String name = new Object() {
+				}.getClass().getEnclosingMethod().getName();
+				Logger.println(name + " | ConnectionResets: trying max " + retries + " other times!");
+				retries--;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return;
+			}
+		}
+
+		if (response == null)
+			return;
 
 		FindReplaceResponse findReplaceResponse = response.getReplies().get(1).getFindReplace();
 		System.out.printf("%d replacements made.", findReplaceResponse.getOccurrencesChanged());
@@ -227,29 +318,27 @@ public class Quickstart {
 
 		List<List<Object>> data2 = new ArrayList<List<Object>>();
 		data2.add(data1);
-		
-		writeIntoCells(cell,data2);
+
+		writeIntoCells(cell, data2);
 	}
-	
+
 	public static void writeIntoRow(String startCell, String... dataArr) {
 		int cellsEffected = dataArr.length;
-		
-		String endCell = getCellFromOffset(startCell,cellsEffected);
-		
+
+		String endCell = getCellFromOffset(startCell, cellsEffected);
+
 		List<Object> data1 = new ArrayList<Object>();
 		data1.addAll(Arrays.asList(dataArr));
 
 		List<List<Object>> data2 = new ArrayList<List<Object>>();
 		data2.add(data1);
-		
-		writeIntoCells(getRange(startCell,endCell),data2);
-	}
-	
-	public static String getRange(String start, String end) {
-		return start+":"+end;
-	}
-	
 
+		writeIntoCells(getRange(startCell, endCell), data2);
+	}
+
+	public static String getRange(String start, String end) {
+		return start + ":" + end;
+	}
 
 	public static BatchUpdateValuesResponse writeIntoCells(String range, List<List<Object>> arrData) {
 		ValueRange oRange = new ValueRange();
@@ -264,25 +353,26 @@ public class Quickstart {
 		oRequest.setValueInputOption("USER_ENTERED");
 		oRequest.setData(oList);
 
-		try {
-			BatchUpdateValuesResponse oResp1 = service.spreadsheets().values().batchUpdate(spreadsheetId, oRequest).execute();
-			return oResp1;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		int retries = maxRetriesForConnectionReset;
+		while (retries > 0) {
+			try {
+				BatchUpdateValuesResponse oResp1 = service.spreadsheets().values().batchUpdate(spreadSheetId, oRequest)
+						.execute();
+				return oResp1;
+			} catch (SocketException e) {
+				String name = new Object() {
+				}.getClass().getEnclosingMethod().getName();
+				Logger.println(name + " | ConnectionResets: trying max " + retries + " other times!");
+				retries--;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
 		}
-		
+
+		// incase something realy mess up
 		return null;
-	}
-
-	public static List<List<Object>> getData() {
-		List<Object> data1 = new ArrayList<Object>();
-		data1.add("Ashwin");
-
-		List<List<Object>> data = new ArrayList<List<Object>>();
-		data.add(data1);
-
-		return data;
 	}
 
 }

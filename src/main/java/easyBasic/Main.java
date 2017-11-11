@@ -1,18 +1,20 @@
 package easyBasic;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import easyFrame.EasyFrame;
+import easyFrame.EasyFrameInterface;
 import easyServer.ServerListGoogleSheets;
 import easyServer.ServerListInterface;
 
 public class Main {
 
-	public static ServerListInterface serverHandler;
+	public static EasyServerGUI serverGui;
 	
 	public static void main(String[] args) {
-		Logger.println("Setting Up ServerHandler");
-		serverHandler = new ServerListGoogleSheets();
-		Logger.println("ServersRegistered: "+serverHandler.getAmountServers());
-		Logger.println("Register now Server");
-		serverHandler.registerServer();
-		serverHandler.getServers();
-
+		serverGui = new EasyServerGUI();
+		
+		
 	}
+	
 }

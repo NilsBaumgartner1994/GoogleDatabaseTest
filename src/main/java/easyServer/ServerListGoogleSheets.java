@@ -13,6 +13,9 @@ public class ServerListGoogleSheets implements ServerListInterface{
 	public ServerListGoogleSheets() {
 		Logger.println("Connection To Master Server");
 		connectToMasterServer();
+		
+		handler.findAndReplace("nilsb", "penis");
+		
 	}
 	
 	@Override

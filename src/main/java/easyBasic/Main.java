@@ -4,6 +4,7 @@ import java.awt.event.ActionListener;
 
 import easyFrame.EasyFrame;
 import easyFrame.EasyFrameInterface;
+import easyServer.EasyGoogleSheetsHandler;
 import easyServer.ServerListGoogleSheets;
 import easyServer.ServerListInterface;
 
@@ -13,8 +14,6 @@ public class Main {
 	
 	public static void main(String[] args) {
 		serverGui = new EasyServerGUI();
-		
-		
 	}
 	
 }

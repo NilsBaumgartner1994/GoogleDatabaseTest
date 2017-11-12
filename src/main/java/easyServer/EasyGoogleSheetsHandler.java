@@ -226,22 +226,29 @@ public class EasyGoogleSheetsHandler {
 
 	public static String getCellFromOffset(String startCell, int colInt) {
 		String colString = startCell.replaceAll("\\d", "");
-		Logger.println(colString);
-
 		String row = startCell.replaceAll(colString, "");
-		int position = 0;
-		while (colInt > 0) {
-			int rest = colInt % 26;
-			int charPos = colString.length() - 1 - position;
-			char posChar = colString.charAt(charPos);
-			int posCharInt = Character.codePointAt(String.valueOf(posChar), 0);
-			char newChar = Character.toChars(posCharInt + rest)[0];
-			StringBuilder tempString = new StringBuilder(colString);
-			tempString.setCharAt(charPos, newChar);
-			colInt = 0;
-			colString = tempString.toString();
+
+		return columnToLetter(letterToColumn(colString) + colInt) + row;
+	}
+
+	public static String columnToLetter(int column) {
+		String letter = "";
+		int temp = 0;
+		while (column > 0) {
+			temp = (column - 1) % 26;
+			letter = Character.toChars(temp + 65)[0] + letter;
+			column = (column - temp - 1) / 26;
 		}
-		return colString + row;
+		return letter;
+	}
+
+	public static int letterToColumn(String letter) {
+		int column = 0;
+		int length = letter.length();
+		for (int i = 0; i < length; i++) {
+			column += (letter.charAt(i) - 64) * Math.pow(26, length - i - 1);
+		}
+		return column;
 	}
 
 	public String readCell(String cell) {
@@ -298,13 +305,45 @@ public class EasyGoogleSheetsHandler {
 	 */
 
 	public void findAndReplace(String find, String replace) {
+		
+		
+		List<Request> requests = new ArrayList<>();
+		// Change the spreadsheet's title.
+		requests.add(new Request()
+		        .setUpdateSpreadsheetProperties(new UpdateSpreadsheetPropertiesRequest()
+		                .setProperties(new SpreadsheetProperties()
+		                        .setTitle("hi"))
+		                .setFields("title")));
+		// Find and replace text.
+		//requests.add(new Request().setFindReplace(new FindReplaceRequest().setFind(find).setReplacement(replace).setAllSheets(true)));
+		FindReplaceRequest fr = new FindReplaceRequest().setFind(find).setReplacement(find).setAllSheets(true);
+		requests.add(new Request().setFindReplace(fr));
+		
+
+		// Add additional requests (operations) ...
+
+		BatchUpdateSpreadsheetRequest body =
+		        new BatchUpdateSpreadsheetRequest().setRequests(requests);
+		BatchUpdateSpreadsheetResponse response;
+		try {
+			response = service.spreadsheets().batchUpdate(spreadSheetId, body).execute();
+			Logger.println(response.toPrettyString());
+			FindReplaceResponse findReplaceResponse = response.getReplies().get(1).getFindReplace();
+			
+			System.out.printf("%d replacements made.", findReplaceResponse.getOccurrencesChanged());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		/**
 		List<Request> requests = new ArrayList<>();
 		// Change the spreadsheet's title.
 		requests.add(new Request().setUpdateSpreadsheetProperties(new UpdateSpreadsheetPropertiesRequest()
-				.setProperties(new SpreadsheetProperties().setTitle("IP-List")).setFields("title")));
+				.setProperties(new SpreadsheetProperties().setTitle("IP-List2")).setFields("title")));
 		// Find and replace text.
-		requests.add(new Request()
-				.setFindReplace(new FindReplaceRequest().setFind(find).setReplacement(replace).setAllSheets(true)));
+		//requests.add(new Request().setFindReplace(new FindReplaceRequest().setFind(find).setReplacement(replace).setAllSheets(true)));
+		requests.add(new Request().setFindReplace(new FindReplaceRequest().setFind(find).setAllSheets(true)));
 
 		// Add additional requests (operations) ...
 
@@ -333,6 +372,7 @@ public class EasyGoogleSheetsHandler {
 
 		FindReplaceResponse findReplaceResponse = response.getReplies().get(1).getFindReplace();
 		System.out.printf("%d replacements made.", findReplaceResponse.getOccurrencesChanged());
+		*/
 	}
 
 	public void writeIntoCell(String cell, String data) {

@@ -85,7 +85,13 @@ public class EasyFrame implements EasyFrameInterface {
 	
 	public <T extends JComponent> T addAttribute(T attributeClass){
 		panel.add(attributeClass);
+		frame.pack();
 		return attributeClass;
+	}
+	
+	@Override
+	public void addButton(String text, Runnable function) {
+		addAttribute(new EasyFrameButton(text, function));
 	}
 
 	@Override

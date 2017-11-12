@@ -32,6 +32,25 @@ public class ServerListGoogleSheets implements ServerListInterface{
 	public int getAmountServers() {
 		return Integer.parseInt(handler.readCell("D2"));
 	}
+	
+	public static enum RUNFUNCTION {
+		REGISTERSERVER
+	};
+
+	@Override
+	public Runnable createRunnable(final RUNFUNCTION func) {
+
+		Runnable aRunnable = new Runnable() {
+			public void run() {
+				switch (func) {
+				case REGISTERSERVER: registerServer(); break;
+				}
+			}
+		};
+
+		return aRunnable;
+
+	}
 
 	@Override
 	public List<ServerInterface> getServers() {
@@ -39,16 +58,16 @@ public class ServerListGoogleSheets implements ServerListInterface{
 		
 		List<List<Object>> serversObjectList = handler.readCells("A6:D");
 		for(List<Object> serverObject : serversObjectList ) {
-			Server server = parseGoogleSheetServerObjectListToServer(serverObject);
+			ServerInformation server = parseGoogleSheetServerObjectListToServer(serverObject);
 			if(server!=null) servers.add(server);
 		}
 		
 		return servers;
 	}
 	
-	private Server parseGoogleSheetServerObjectListToServer(List<Object> serverRow) {
+	private ServerInformation parseGoogleSheetServerObjectListToServer(List<Object> serverRow) {
 		if(serverRow.size()>=4) {
-			return new Server(""+serverRow.get(0),""+serverRow.get(1),Long.parseLong((String)serverRow.get(2)),""+serverRow.get(3));
+			return new ServerInformation(""+serverRow.get(0),""+serverRow.get(1),Long.parseLong((String)serverRow.get(2)),""+serverRow.get(3));
 		}
 		return null;
 	}

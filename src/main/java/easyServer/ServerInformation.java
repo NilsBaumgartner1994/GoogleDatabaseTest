@@ -1,5 +1,5 @@
 package easyServer;
-public class Server implements ServerInterface{
+public class ServerInformation implements ServerInterface{
 
 	private String displayName;
 	private String ip;
@@ -7,7 +7,7 @@ public class Server implements ServerInterface{
 	private String owner;
 	
 	
-	public Server(String displayName, String ip, long updateTime, String owner) {
+	public ServerInformation(String displayName, String ip, long updateTime, String owner) {
 		this.displayName = displayName;
 		this.ip = ip;
 		this.updateTime = updateTime;

@@ -1,4 +1,5 @@
 package easyServer;
+
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map.Entry;
 
 public class EasyGoogleSheetsHandler {
 	/** Application name. */
@@ -78,7 +80,7 @@ public class EasyGoogleSheetsHandler {
 			t.printStackTrace();
 			System.exit(1);
 		}
-		
+
 		Logger.println("EasyGoogleSheetsHandler authorize API client service");
 
 		// Build a new authorized API client service.
@@ -102,10 +104,10 @@ public class EasyGoogleSheetsHandler {
 				validSetup = false;
 			}
 		}
-		
+
 		Logger.println("EasyGoogleSheetsHandler: finisched setup");
 	}
-	
+
 	public boolean validSetup() {
 		return validSetup;
 	}
@@ -185,6 +187,26 @@ public class EasyGoogleSheetsHandler {
 			try {
 				response = getSheetsService().spreadsheets().batchUpdate(spreadSheetId, batchRequests).execute();
 				retries = 0;
+
+				Logger.println("Request \n\n");
+				Logger.println(batchRequests.toPrettyString());
+
+				Logger.println("\n\nResponse \n\n");
+				for (Object value : response.values()) {
+					Logger.println(value.toString());
+				}
+				for (Entry value : response.entrySet()) {
+					Logger.println(value.getKey() + " - " + value.getValue());
+				}
+				for (Response value : response.getReplies()) {
+					Logger.println(value.toPrettyString());
+				}
+				for (String value : response.keySet()) {
+					Logger.println(value);
+				}
+				Logger.println(response.toString());
+				Logger.println(response.toPrettyString());
+
 				return true;
 			} catch (SocketException | SocketTimeoutException e) {
 				String name = new Object() {
@@ -198,12 +220,7 @@ public class EasyGoogleSheetsHandler {
 				return false;
 			}
 		}
-		/**
-		 * System.out.println("Request \n\n");
-		 * System.out.println(batchRequests.toPrettyString());
-		 * System.out.println("\n\nResponse \n\n");
-		 * System.out.println(response.toPrettyString());
-		 */
+
 		return false;
 	}
 

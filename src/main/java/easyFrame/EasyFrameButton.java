@@ -1,9 +1,14 @@
 package easyFrame;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.JButton;
 
-public class EasyFrameButton extends JButton{
-	
+import easyBasic.Logger;
+
+public class EasyFrameButton extends JButton {
+
 	/**
 	 * 
 	 */
@@ -12,5 +17,18 @@ public class EasyFrameButton extends JButton{
 	public EasyFrameButton(String string) {
 		super(string);
 	}
-	
+
+	public EasyFrameButton(String string, final Runnable function) {
+		super(string);
+
+		ActionListener listener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				function.run();
+			}
+		};
+
+		this.addActionListener(listener);
+	}
+
 }

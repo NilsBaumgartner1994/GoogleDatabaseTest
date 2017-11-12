@@ -18,20 +18,13 @@ public class EasyServerGUI {
 	public EasyServerGUI() {
 		status = new EasyProgressStatus("SettingupGUI");
 		frame = new EasyFrame("MasterServerTest");
-		EasyFrame frame2 = new EasyFrame("MasterServerTest2");
-		
-		
 		
 		serverHandler = new ServerListGoogleSheets();
 		Logger.println("ServersRegistered: " + serverHandler.getAmountServers());
-		Logger.println("Register now Server");
-		serverHandler.registerServer();
-		serverHandler.getServers();
+		
+		Runnable registerServer = serverHandler.createRunnable(ServerListGoogleSheets.RUNFUNCTION.REGISTERSERVER);		
+		frame.addButton("Register", registerServer);
+		
 	}
-
-	ActionListener listener = new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-			Logger.print("Hallo");
-		}
-	};
+	
 }

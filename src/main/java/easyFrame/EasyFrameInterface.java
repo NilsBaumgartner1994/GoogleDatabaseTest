@@ -13,5 +13,6 @@ public interface EasyFrameInterface {
 	public void setExternProgressStatus(EasyProgressStatus status);
 	public EasyProgressStatus getOwnProgressStatus();
 	public EasyProgressStatus getExternProgressStatus();
+	public void addButton(String text, Runnable function);
 
 }

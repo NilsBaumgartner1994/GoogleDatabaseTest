@@ -51,7 +51,7 @@ public class EasyGoogleSheetsHandler {
 	/** Global instance of the JSON factory. */
 	private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
-	private String spreadSheetId = "1SkstzWkc2wZ-1iT0hSsgB2ADbxaWED1PRgCZBA8HF6U";
+	String spreadSheetId = "1SkstzWkc2wZ-1iT0hSsgB2ADbxaWED1PRgCZBA8HF6U";
 
 	/** Global instance of the HTTP transport. */
 	private HttpTransport HTTP_TRANSPORT;
@@ -136,7 +136,7 @@ public class EasyGoogleSheetsHandler {
 		return credential;
 	}
 
-	private static Sheets service = null;
+	static Sheets service = null;
 
 	/**
 	 * Build and return an authorized Sheets API client service.
@@ -155,33 +155,35 @@ public class EasyGoogleSheetsHandler {
 
 		return service;
 	}
-	
+
 	private static List<String> allRows;
 	private static int beginRows = 6;
 	private static int endRows = 10;
-	
+
 	static {
 		allRows = new ArrayList<String>();
-		for(int i=beginRows; i<=endRows; i++) {
-			allRows.add(""+i);
+		for (int i = beginRows; i <= endRows; i++) {
+			allRows.add("" + i);
 		}
 	}
-	
-	public List<String> getFreeRows(){
+
+	public List<String> getFreeRows() {
 		List<String> freeRows = new ArrayList<String>(allRows);
 		List<String> occupiedRows = getOccupiedRows();
 		freeRows.removeAll(occupiedRows);
 		return freeRows;
 	}
-	
+
 	public String getFreeRow() {
 		List<String> freeRows = getFreeRows();
-		if(freeRows.isEmpty()) return null;
+		if (freeRows.isEmpty())
+			return null;
 		return freeRows.get((new Random()).nextInt(freeRows.size()));
 	}
-	
+
 	public static String delimeterOccupiedRows = " ";
-	public List<String> getOccupiedRows(){
+
+	public List<String> getOccupiedRows() {
 		String occupiedRowsRaw = this.readCell("A4");
 		List<String> occupiedRows = Arrays.asList(occupiedRowsRaw.split(delimeterOccupiedRows));
 		return occupiedRows;
@@ -189,10 +191,92 @@ public class EasyGoogleSheetsHandler {
 
 	public EasyUpdateAction addInRandomRowData(String... datas) {
 		String row = getFreeRow();
-		if(row==null) return null;
-		BatchUpdateValuesResponse response = writeIntoRow("B"+row,datas);
-		if(response==null) return null;
-		return new EasyUpdateAction("B",row,response);
+		if (row == null)
+			return null;
+		BatchUpdateValuesResponse response = writeIntoRow("B" + row, datas);
+		if (response == null)
+			return null;
+		return new EasyUpdateAction("B", row, response);
+	}
+	
+	public EasyUpdateAction append(String... dataArr) {
+		String range = "B6"; // TODO: Update placeholder value.
+
+		// How the input data should be interpreted.
+		String valueInputOption = "RAW"; // TODO: Update placeholder value.
+
+		// How the input data should be inserted.
+		String insertDataOption = "INSERT_ROWS"; // TODO: Update placeholder value.
+
+		// TODO: Assign values to desired fields of `requestBody`:
+		ValueRange requestBody = new ValueRange();
+		
+		List<Object> data1 = new ArrayList<Object>();
+		data1.addAll(Arrays.asList(dataArr));
+
+		List<List<Object>> data2 = new ArrayList<List<Object>>();
+		data2.add(data1);
+        
+        requestBody.setValues(data2);
+
+		Sheets sheetsService;
+		try {
+			sheetsService = getSheetsService();
+			Sheets.Spreadsheets.Values.Append request = sheetsService.spreadsheets().values().append(spreadSheetId,
+					range, requestBody);
+
+			request.setValueInputOption(valueInputOption);
+			request.setInsertDataOption(insertDataOption);
+
+			AppendValuesResponse response = request.execute();
+
+			// TODO: Change code below to process the `response` object:
+			
+			Logger.println(response.getTableRange());
+			
+			String startCell = response.getTableRange().split(":")[1];
+			String colString = startCell.replaceAll("\\d", "");
+			String row = startCell.replaceAll(colString, "");
+			
+			deleteRow(Integer.parseInt(row)+1,0);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	public void deleteRow(int row, int sheetID) {
+		Logger.println("ID "+sheetID);
+		BatchUpdateSpreadsheetRequest content = new BatchUpdateSpreadsheetRequest();
+        Request request = new Request();
+        DeleteDimensionRequest deleteDimensionRequest = new DeleteDimensionRequest();
+        DimensionRange dimensionRange = new DimensionRange();
+        dimensionRange.setDimension("ROWS");
+        dimensionRange.setStartIndex(row);
+        dimensionRange.setEndIndex(row+1);
+
+        
+        deleteDimensionRequest.setRange(dimensionRange);
+
+        request.setDeleteDimension(deleteDimensionRequest);
+
+        List<Request> requests = new ArrayList<Request>();
+        requests.add(request);
+        content.setRequests(requests);
+
+        try {
+            service.spreadsheets().batchUpdate(spreadSheetId, content).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            dimensionRange = null;
+            deleteDimensionRequest = null;
+            request = null;
+            requests = null;
+            content = null;
+        }
 	}
 
 	public static String getCellFromOffset(String startCell, int colInt) {

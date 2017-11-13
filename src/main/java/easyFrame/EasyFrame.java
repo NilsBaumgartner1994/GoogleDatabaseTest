@@ -89,9 +89,24 @@ public class EasyFrame implements EasyFrameInterface {
 		return attributeClass;
 	}
 	
+	public void removeAttribute(JComponent attributeClass){
+		panel.remove(attributeClass);
+		frame.pack();
+	}
+	
 	@Override
-	public void addButton(String text, Runnable function) {
-		addAttribute(new EasyFrameButton(text, function));
+	public EasyFrameButton addButton(String text, Runnable function) {
+		return addButton(new EasyFrameButton(text, function));
+	}
+	
+	@Override
+	public EasyFrameButton addButton(EasyFrameButton button) {
+		return addAttribute(button);
+	}
+	
+	@Override
+	public void removeButton(EasyFrameButton button) {
+		removeAttribute(button);
 	}
 
 	@Override
@@ -124,6 +139,10 @@ public class EasyFrame implements EasyFrameInterface {
 	public void setWindowSize(int width, int height) {
 		frame.setSize(new Dimension(width,height));
 	}
+
+
+
+
 
 
 

@@ -1,5 +1,6 @@
 package easyServer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class ServerListGoogleSheets implements ServerListInterface {
 	}
 
 	public static enum RUNFUNCTION {
-		REGISTERSERVER, UNREGISTERSERVER
+		CONNECTTOMASTERSERVER, DISCONNECTFROMMASTERSERVER, REGISTERSERVER, UNREGISTERSERVER
 	};
 
 	@Override
@@ -60,6 +61,8 @@ public class ServerListGoogleSheets implements ServerListInterface {
 		Runnable aRunnable = new Runnable() {
 			public void run() {
 				switch (func) {
+				case CONNECTTOMASTERSERVER : connectToMasterServer(); break;
+				case DISCONNECTFROMMASTERSERVER : disconnectFromMasterServer(); break;
 				case REGISTERSERVER:
 					registerServer();
 					break;
@@ -122,7 +125,8 @@ public class ServerListGoogleSheets implements ServerListInterface {
 	public void registerServer(ServerInterface server) {
 		connectToMasterServerIfNotConnected();
 
-		EasyUpdateAction updateAction = handler.addInRandomRowData(parseServerToGoogleSheetServerObjectList(server));
+		EasyUpdateAction updateAction = handler.append(parseServerToGoogleSheetServerObjectList(server));
+//		EasyUpdateAction updateAction = handler.addInRandomRowData(parseServerToGoogleSheetServerObjectList(server));
 		if (updateAction == null)
 			return;
 		BatchUpdateValuesResponse response = updateAction.getResponse();
@@ -135,28 +139,30 @@ public class ServerListGoogleSheets implements ServerListInterface {
 
 	@Override
 	public boolean unregisterServer() {
-		if(isConnectedToAServer()) {
+		if (isConnectedToAServer()) {
 			return unregisterServer(this.connectedServer);
 		}
 
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public void disconnectFromMasterServer() {
-		// TODO Auto-generated method stub
-
+		handler = null;
 	}
 
 	@Override
 	public boolean unregisterServer(ServerInterface server) {
 		connectToMasterServerIfNotConnected();
-		
-		handler.writeIntoRow("B"+server.getUniqueID(), new String[]{"","","",""});
-		
-		// TODO Auto-generated method stub
-		return false;
+
+		BatchUpdateValuesResponse response = handler.writeIntoRow("B" + server.getUniqueID(), new String[] { "", "", "", "" });
+		try {
+			Logger.println("Unregister: "+response.toPrettyString());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return response!=null;
 	}
 
 	@Override

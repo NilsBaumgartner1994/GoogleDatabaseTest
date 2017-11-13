@@ -187,6 +187,8 @@ public class EasyGoogleSheetsHandler {
 			try {
 				response = getSheetsService().spreadsheets().batchUpdate(spreadSheetId, batchRequests).execute();
 				retries = 0;
+				
+				response.getUpdatedSpreadsheet()
 
 				Logger.println("Request \n\n");
 				Logger.println(batchRequests.toPrettyString());
@@ -200,6 +202,7 @@ public class EasyGoogleSheetsHandler {
 				}
 				for (Response value : response.getReplies()) {
 					Logger.println(value.toPrettyString());
+					Logger.println(value.values());
 				}
 				for (String value : response.keySet()) {
 					Logger.println(value);
@@ -296,14 +299,8 @@ public class EasyGoogleSheetsHandler {
 		return null;
 	}
 
+	
 	/**
-	 * List<List<Object>> values = response.getValues(); if (values == null ||
-	 * values.size() == 0) { System.out.println("No data found."); } else {
-	 * System.out.println("Name, Major"); for (List row : values) { // Print columns
-	 * A and E, which correspond to indices 0 and 4. System.out.printf("%s, %s\n",
-	 * row.get(0), row.get(4)); } }
-	 */
-
 	public void findAndReplace(String find, String replace) {
 		
 		
@@ -335,45 +332,8 @@ public class EasyGoogleSheetsHandler {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		/**
-		List<Request> requests = new ArrayList<>();
-		// Change the spreadsheet's title.
-		requests.add(new Request().setUpdateSpreadsheetProperties(new UpdateSpreadsheetPropertiesRequest()
-				.setProperties(new SpreadsheetProperties().setTitle("IP-List2")).setFields("title")));
-		// Find and replace text.
-		//requests.add(new Request().setFindReplace(new FindReplaceRequest().setFind(find).setReplacement(replace).setAllSheets(true)));
-		requests.add(new Request().setFindReplace(new FindReplaceRequest().setFind(find).setAllSheets(true)));
-
-		// Add additional requests (operations) ...
-
-		BatchUpdateSpreadsheetResponse response = null;
-
-		int retries = maxRetriesForConnectionReset;
-		while (retries > 0) {
-			try {
-				BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
-				response = getSheetsService().spreadsheets().batchUpdate(spreadSheetId, body).execute();
-
-			} catch (SocketException e) {
-				String name = new Object() {
-				}.getClass().getEnclosingMethod().getName();
-				Logger.println(name + " | ConnectionResets: trying max " + retries + " other times!");
-				retries--;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return;
-			}
-		}
-
-		if (response == null)
-			return;
-
-		FindReplaceResponse findReplaceResponse = response.getReplies().get(1).getFindReplace();
-		System.out.printf("%d replacements made.", findReplaceResponse.getOccurrencesChanged());
-		*/
 	}
+	*/
 
 	public void writeIntoCell(String cell, String data) {
 		List<Object> data1 = new ArrayList<Object>();

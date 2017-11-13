@@ -6,8 +6,13 @@ public interface ServerInterface {
 	
 	public String getDisplayName();
 	public String getIP();
-	public long getUpdateTime();
+	public String getUpdateTime();
 	public String getOwner();
-	
+	public String getUniqueID();
+	public void setDisplayName(String displayName);
+	public void setIP(String ip);
+	public void setUpdateTime(String updateTime);
+	public void setOwner(String owner);
+	public void setUniqueID(String uniqueID);
 
 }

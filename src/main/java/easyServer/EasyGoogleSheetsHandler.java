@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Random;
 
 public class EasyGoogleSheetsHandler {
 	/** Application name. */
@@ -154,77 +155,44 @@ public class EasyGoogleSheetsHandler {
 
 		return service;
 	}
-
-	public boolean appendRow(String... datas) {
-
-		List<RowData> rowData = new ArrayList<RowData>();
-		List<CellData> cellData = new ArrayList<CellData>();
-
-		for (String data : datas) {
-			CellData dateField = new CellData();
-			dateField.setUserEnteredValue(new ExtendedValue().setStringValue(data));
-			cellData.add(dateField);
+	
+	private static List<String> allRows;
+	private static int beginRows = 6;
+	private static int endRows = 10;
+	
+	static {
+		allRows = new ArrayList<String>();
+		for(int i=beginRows; i<=endRows; i++) {
+			allRows.add(""+i);
 		}
+	}
+	
+	public List<String> getFreeRows(){
+		List<String> freeRows = new ArrayList<String>(allRows);
+		List<String> occupiedRows = getOccupiedRows();
+		freeRows.removeAll(occupiedRows);
+		return freeRows;
+	}
+	
+	public String getFreeRow() {
+		List<String> freeRows = getFreeRows();
+		if(freeRows.isEmpty()) return null;
+		return freeRows.get((new Random()).nextInt(freeRows.size()));
+	}
+	
+	public static String delimeterOccupiedRows = " ";
+	public List<String> getOccupiedRows(){
+		String occupiedRowsRaw = this.readCell("A4");
+		List<String> occupiedRows = Arrays.asList(occupiedRowsRaw.split(delimeterOccupiedRows));
+		return occupiedRows;
+	}
 
-		rowData.add(new RowData().setValues(cellData));
-
-		BatchUpdateSpreadsheetRequest batchRequests = new BatchUpdateSpreadsheetRequest();
-		BatchUpdateSpreadsheetResponse response;
-		List<Request> requests = new ArrayList<Request>();
-
-		AppendCellsRequest appendCellReq = new AppendCellsRequest();
-		appendCellReq.setSheetId(0);
-		appendCellReq.setRows(rowData);
-		appendCellReq.setFields("userEnteredValue");
-
-		requests = new ArrayList<Request>();
-		requests.add(new Request().setAppendCells(appendCellReq));
-		batchRequests = new BatchUpdateSpreadsheetRequest();
-		batchRequests.setRequests(requests);
-
-		int retries = maxRetriesForConnectionReset;
-		while (retries > 0) {
-			try {
-				response = getSheetsService().spreadsheets().batchUpdate(spreadSheetId, batchRequests).execute();
-				retries = 0;
-				
-				response.getUpdatedSpreadsheet()
-
-				Logger.println("Request \n\n");
-				Logger.println(batchRequests.toPrettyString());
-
-				Logger.println("\n\nResponse \n\n");
-				for (Object value : response.values()) {
-					Logger.println(value.toString());
-				}
-				for (Entry value : response.entrySet()) {
-					Logger.println(value.getKey() + " - " + value.getValue());
-				}
-				for (Response value : response.getReplies()) {
-					Logger.println(value.toPrettyString());
-					Logger.println(value.values());
-				}
-				for (String value : response.keySet()) {
-					Logger.println(value);
-				}
-				Logger.println(response.toString());
-				Logger.println(response.toPrettyString());
-
-				return true;
-			} catch (SocketException | SocketTimeoutException e) {
-				String name = new Object() {
-				}.getClass().getEnclosingMethod().getName();
-				Logger.println(name + " | ConnectionResets: trying max " + retries + " other times!");
-				retries--;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				retries = 0;
-				return false;
-			}
-		}
-
-		return false;
+	public EasyUpdateAction addInRandomRowData(String... datas) {
+		String row = getFreeRow();
+		if(row==null) return null;
+		BatchUpdateValuesResponse response = writeIntoRow("B"+row,datas);
+		if(response==null) return null;
+		return new EasyUpdateAction("B",row,response);
 	}
 
 	public static String getCellFromOffset(String startCell, int colInt) {
@@ -299,53 +267,17 @@ public class EasyGoogleSheetsHandler {
 		return null;
 	}
 
-	
-	/**
-	public void findAndReplace(String find, String replace) {
-		
-		
-		List<Request> requests = new ArrayList<>();
-		// Change the spreadsheet's title.
-		requests.add(new Request()
-		        .setUpdateSpreadsheetProperties(new UpdateSpreadsheetPropertiesRequest()
-		                .setProperties(new SpreadsheetProperties()
-		                        .setTitle("hi"))
-		                .setFields("title")));
-		// Find and replace text.
-		//requests.add(new Request().setFindReplace(new FindReplaceRequest().setFind(find).setReplacement(replace).setAllSheets(true)));
-		FindReplaceRequest fr = new FindReplaceRequest().setFind(find).setReplacement(find).setAllSheets(true);
-		requests.add(new Request().setFindReplace(fr));
-		
-
-		// Add additional requests (operations) ...
-
-		BatchUpdateSpreadsheetRequest body =
-		        new BatchUpdateSpreadsheetRequest().setRequests(requests);
-		BatchUpdateSpreadsheetResponse response;
-		try {
-			response = service.spreadsheets().batchUpdate(spreadSheetId, body).execute();
-			Logger.println(response.toPrettyString());
-			FindReplaceResponse findReplaceResponse = response.getReplies().get(1).getFindReplace();
-			
-			System.out.printf("%d replacements made.", findReplaceResponse.getOccurrencesChanged());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	*/
-
-	public void writeIntoCell(String cell, String data) {
+	public BatchUpdateValuesResponse writeIntoCell(String cell, String data) {
 		List<Object> data1 = new ArrayList<Object>();
 		data1.add(data);
 
 		List<List<Object>> data2 = new ArrayList<List<Object>>();
 		data2.add(data1);
 
-		writeIntoCells(cell, data2);
+		return writeIntoCells(cell, data2);
 	}
 
-	public void writeIntoRow(String startCell, String... dataArr) {
+	public BatchUpdateValuesResponse writeIntoRow(String startCell, String... dataArr) {
 		int cellsEffected = dataArr.length;
 
 		String endCell = getCellFromOffset(startCell, cellsEffected);
@@ -356,7 +288,7 @@ public class EasyGoogleSheetsHandler {
 		List<List<Object>> data2 = new ArrayList<List<Object>>();
 		data2.add(data1);
 
-		writeIntoCells(getRange(startCell, endCell), data2);
+		return writeIntoCells(getRange(startCell, endCell), data2);
 	}
 
 	private String getRange(String start, String end) {

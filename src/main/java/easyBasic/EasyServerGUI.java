@@ -35,6 +35,9 @@ public class EasyServerGUI {
 		Runnable registerServer = serverHandler.createRunnable(ServerListGoogleSheets.RUNFUNCTION.REGISTERSERVER);		
 		frame.addButton("Register", registerServer);
 		
+		Runnable unregisterServer = serverHandler.createRunnable(ServerListGoogleSheets.RUNFUNCTION.UNREGISTERSERVER);		
+		frame.addButton("Unregister", unregisterServer);
+		
 	}
 	
 }

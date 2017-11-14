@@ -1,5 +1,8 @@
 package easyServer;
-public class ServerInformation implements ServerInterface{
+
+import easyBasic.Logger;
+
+public class ServerInformation implements ServerInterface, Comparable<ServerInformation>{
 
 	private String displayName;
 	private String ip;
@@ -13,16 +16,6 @@ public class ServerInformation implements ServerInterface{
 		this.setOwner(owner);
 		this.setUniqueID(uniqueID);
 		this.setUpdateTime(updateTime);
-	}
-	
-	@Override
-	public void connect() {
-		
-	}
-
-	@Override
-	public void disconnect() {
-		
 	}
 
 	@Override
@@ -73,6 +66,11 @@ public class ServerInformation implements ServerInterface{
 	@Override
 	public void setUniqueID(String uniqueID) {
 		this.uniqueID = uniqueID;
+	}
+
+	@Override
+	public int compareTo(ServerInformation o) {
+		return this.getUniqueID().compareTo(o.getUniqueID());
 	}
 	
 

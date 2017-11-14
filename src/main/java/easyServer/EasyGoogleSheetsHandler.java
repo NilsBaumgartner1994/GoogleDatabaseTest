@@ -198,7 +198,7 @@ public class EasyGoogleSheetsHandler {
 			return null;
 		return new EasyUpdateAction("B", row, response);
 	}
-	
+	/**
 	public EasyUpdateAction append(String... dataArr) {
 		String range = "B6"; // TODO: Update placeholder value.
 
@@ -246,7 +246,9 @@ public class EasyGoogleSheetsHandler {
 		
 		return null;
 	}
+	*/
 	
+	/**
 	public void deleteRow(int row, int sheetID) {
 		Logger.println("ID "+sheetID);
 		BatchUpdateSpreadsheetRequest content = new BatchUpdateSpreadsheetRequest();
@@ -278,6 +280,7 @@ public class EasyGoogleSheetsHandler {
             content = null;
         }
 	}
+	*/
 
 	public static String getCellFromOffset(String startCell, int colInt) {
 		String colString = startCell.replaceAll("\\d", "");

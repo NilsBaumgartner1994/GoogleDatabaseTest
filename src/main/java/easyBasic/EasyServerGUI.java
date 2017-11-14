@@ -1,22 +1,15 @@
 package easyBasic;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
-import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetResponse;
-import com.google.api.services.sheets.v4.model.FindReplaceRequest;
-import com.google.api.services.sheets.v4.model.GridRange;
-import com.google.api.services.sheets.v4.model.Request;
+import java.util.Map;
 
 import easyFrame.EasyFrame;
 import easyFrame.EasyFrameButton;
 import easyFrame.EasyFrameInterface;
 import easyFrame.EasyProgressStatus;
+import easyServer.ServerInterface;
 import easyServer.ServerListGoogleSheets;
 import easyServer.ServerListInterface;
 
@@ -29,14 +22,16 @@ public class EasyServerGUI {
 	private Runnable connectToMasterServer;
 	private EasyFrameButton connectToMasterServerButton;
 	
-	private Runnable disconnectToMasterServer;
-	private EasyFrameButton disconnectToMasterServerButton;
+	private Runnable listAllServer;
+	private EasyFrameButton listAllServerButton;
 	
 	private Runnable registerServer;
 	private EasyFrameButton registerServerButton;
 	
 	private Runnable unregisterServer;
 	private EasyFrameButton unregisterServerButton;
+	
+	private List<EasyFrameButton> connectToServerButtons = new ArrayList<EasyFrameButton>();
 	
 	public EasyServerGUI() {
 		status = new EasyProgressStatus("SettingupGUI");
@@ -53,28 +48,32 @@ public class EasyServerGUI {
 		connectToMasterServer = createRunnable(RUNFUNCTION.CONNECTTOMASTERSERVER);
 		connectToMasterServerButton = new EasyFrameButton("Connect",connectToMasterServer);
 		
-		disconnectToMasterServer = createRunnable(RUNFUNCTION.DISCONNECTFROMMASTERSERVER);
-		disconnectToMasterServerButton = new EasyFrameButton("Disconnect",disconnectToMasterServer);
-		
 		registerServer = createRunnable(RUNFUNCTION.REGISTERSERVER);
 		registerServerButton = new EasyFrameButton("Register",registerServer);
 		
 		unregisterServer = createRunnable(RUNFUNCTION.UNREGISTERSERVER);
 		unregisterServerButton = new EasyFrameButton("Unregister",unregisterServer);
+		
+		listAllServer = createRunnable(RUNFUNCTION.LISTALLSERVER);
+		listAllServerButton = new EasyFrameButton("Get all Server",listAllServer);
 	}
 
 	static enum RUNFUNCTION {
-		CONNECTTOMASTERSERVER, DISCONNECTFROMMASTERSERVER, REGISTERSERVER, UNREGISTERSERVER
+		CONNECTTOMASTERSERVER, DISCONNECTFROMMASTERSERVER, REGISTERSERVER, UNREGISTERSERVER, LISTALLSERVER, CONNECTTOSERVER
 	}
 
 	public Runnable createRunnable(final RUNFUNCTION func) {
+		return createRunnable(func,null);
+	}
+	
+	public Runnable createRunnable(final RUNFUNCTION func, final Object param) {
 		Runnable aRunnable = new Runnable() {
 			public void run() {
 				switch (func) {
 				case CONNECTTOMASTERSERVER:
 					if (serverHandler.connectToMasterServer()) {
-						Logger.println("Change view buttons to register");
 						frame.addButton(registerServerButton);
+						frame.addButton(listAllServerButton);
 						frame.removeButton(connectToMasterServerButton);
 					} 
 					break;
@@ -82,6 +81,8 @@ public class EasyServerGUI {
 					serverHandler.registerServer();
 					if(serverHandler.isConnectedToAServer()) {
 						frame.addButton(unregisterServerButton);
+						frame.removeButton(listAllServerButton);
+						removeAllConnectToServerButtons();
 						frame.removeButton(registerServerButton);
 					}
 					break;
@@ -89,7 +90,21 @@ public class EasyServerGUI {
 					serverHandler.unregisterServer();
 					if(!serverHandler.isConnectedToAServer()) {
 						frame.addButton(registerServerButton);
+						frame.addButton(listAllServerButton);
 						frame.removeButton(unregisterServerButton);
+					}
+					break;
+				case LISTALLSERVER:
+					removeAllConnectToServerButtons();
+					List<ServerInterface> servers = serverHandler.getServers();
+					addAllConnectToServerButtons(servers);
+					break;
+				case CONNECTTOSERVER:
+					Logger.println("Hey connect to server");
+					Logger.println(param.getClass().getName());
+					if(param instanceof ServerInterface){
+						ServerInterface server = (ServerInterface) param;
+						serverHandler.connectTo(server);
 					}
 					break;
 				}
@@ -97,6 +112,23 @@ public class EasyServerGUI {
 		};
 
 		return aRunnable;
+	}
+	
+	private void removeAllConnectToServerButtons(){
+		for(EasyFrameButton button : connectToServerButtons){
+			frame.removeButton(button);
+		}
+		connectToServerButtons = new ArrayList<EasyFrameButton>();
+	}
+	
+	private void addAllConnectToServerButtons(List<ServerInterface> servers){
+		for(ServerInterface server : servers){
+			String label = server.getUniqueID()+" IP: "+server.getIP();
+			Runnable connectToServer = createRunnable(RUNFUNCTION.CONNECTTOSERVER,server);
+			EasyFrameButton serverButton = new EasyFrameButton(label,connectToServer);
+			connectToServerButtons.add(serverButton);
+			frame.addButton(serverButton);
+		}
 	}
 
 }

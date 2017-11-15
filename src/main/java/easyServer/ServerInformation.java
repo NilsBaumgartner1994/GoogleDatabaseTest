@@ -6,13 +6,15 @@ public class ServerInformation implements ServerInterface, Comparable<ServerInfo
 
 	private String displayName;
 	private String ip;
+	private String port;
 	private String updateTime;
 	private String owner;
 	private String uniqueID;
 	
-	public ServerInformation(String uniqueID, String displayName, String ip, String updateTime, String owner) {
+	public ServerInformation(String uniqueID, String displayName, String ip, String port,String updateTime, String owner) {
 		this.setDisplayName(displayName);
 		this.setIP(ip);
+		this.setPort(port);
 		this.setOwner(owner);
 		this.setUniqueID(uniqueID);
 		this.setUpdateTime(updateTime);
@@ -26,6 +28,11 @@ public class ServerInformation implements ServerInterface, Comparable<ServerInfo
 	@Override
 	public String getIP() {
 		return this.ip;
+	}
+	
+	@Override
+	public String getPort(){
+		return this.port;
 	}
 
 	@Override
@@ -52,6 +59,11 @@ public class ServerInformation implements ServerInterface, Comparable<ServerInfo
 	public void setIP(String ip) {
 		this.ip = ip;
 	}
+	
+	@Override
+	public void setPort(String port){
+		this.port = port;
+	}
 
 	@Override
 	public void setUpdateTime(String updateTime) {
@@ -71,6 +83,16 @@ public class ServerInformation implements ServerInterface, Comparable<ServerInfo
 	@Override
 	public int compareTo(ServerInformation o) {
 		return this.getUniqueID().compareTo(o.getUniqueID());
+	}
+
+	@Override
+	public EasyServerCommunication connectToServerAsClient() {
+		return new EasyServerCommunication(this,EasyServerCommunication.COMMUNICATIONTYP.CLIENT);
+	}
+
+	@Override
+	public EasyServerCommunication setupServer() {
+		return new EasyServerCommunication(this,EasyServerCommunication.COMMUNICATIONTYP.HOST);
 	}
 	
 

@@ -15,6 +15,13 @@ public class ServerHelpers {
 		}
 		return add.getHostAddress();
 	}
+	
+
+	private static final String defaultPort = "3451";
+	
+	public static String getPort(){
+		return defaultPort;
+	}
 
 	public static String getHostname() {
 		try {

@@ -9,6 +9,7 @@ import easyFrame.EasyFrame;
 import easyFrame.EasyFrameButton;
 import easyFrame.EasyFrameInterface;
 import easyFrame.EasyProgressStatus;
+import easyServer.EasyServerCommunication;
 import easyServer.ServerInterface;
 import easyServer.ServerListGoogleSheets;
 import easyServer.ServerListInterface;
@@ -66,6 +67,8 @@ public class EasyServerGUI {
 		return createRunnable(func,null);
 	}
 	
+	EasyServerCommunication connection;
+	
 	public Runnable createRunnable(final RUNFUNCTION func, final Object param) {
 		Runnable aRunnable = new Runnable() {
 			public void run() {
@@ -78,12 +81,13 @@ public class EasyServerGUI {
 					} 
 					break;
 				case REGISTERSERVER:
-					serverHandler.registerServer();
-					if(serverHandler.isConnectedToAServer()) {
+					connection = serverHandler.registerServer();
+					if(connection!=null) {
 						frame.addButton(unregisterServerButton);
 						frame.removeButton(listAllServerButton);
 						removeAllConnectToServerButtons();
 						frame.removeButton(registerServerButton);
+						
 					}
 					break;
 				case UNREGISTERSERVER:
@@ -100,11 +104,12 @@ public class EasyServerGUI {
 					addAllConnectToServerButtons(servers);
 					break;
 				case CONNECTTOSERVER:
-					Logger.println("Hey connect to server");
-					Logger.println(param.getClass().getName());
 					if(param instanceof ServerInterface){
 						ServerInterface server = (ServerInterface) param;
-						serverHandler.connectTo(server);
+						connection = serverHandler.connectTo(server);
+						if(connection!=null){
+							
+						}
 					}
 					break;
 				}

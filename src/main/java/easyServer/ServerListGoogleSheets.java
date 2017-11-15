@@ -12,6 +12,7 @@ public class ServerListGoogleSheets implements ServerListInterface {
 	EasyGoogleSheetsHandler handler;
 
 	private static final String masterServerListSpreadSheetId = "1SkstzWkc2wZ-1iT0hSsgB2ADbxaWED1PRgCZBA8HF6U";
+	private static final String readingArea = "A6:F";
 
 	private ServerInterface connectedServer;
 	
@@ -87,7 +88,7 @@ public class ServerListGoogleSheets implements ServerListInterface {
 		connectToMasterServerIfNotConnected();
 		List<ServerInterface> servers = new ArrayList<ServerInterface>();
 
-		List<List<Object>> serversObjectList = handler.readCells("A6:E");
+		List<List<Object>> serversObjectList = handler.readCells(readingArea);
 		
 		if(serversObjectList==null) return servers;
 		for (List<Object> serverObject : serversObjectList) {
@@ -104,32 +105,35 @@ public class ServerListGoogleSheets implements ServerListInterface {
 			String rowNumber = "" + serverRow.get(0);
 			String displayName = "" + serverRow.get(1);
 			String ip = "" + serverRow.get(2);
-			String updateTime = "" + serverRow.get(3);
-			String owner = "" + serverRow.get(4);
+			String port = "" + serverRow.get(3);
+			String updateTime = "" + serverRow.get(4);
+			String owner = "" + serverRow.get(5);
 
-			return new ServerInformation(rowNumber, displayName, ip, updateTime, owner);
+			return new ServerInformation(rowNumber, displayName, ip,port, updateTime, owner);
 		}
 		return null;
 	}
 
 	private String[] parseServerToGoogleSheetServerObjectList(ServerInterface server) {
-		return new String[] { server.getUniqueID(), server.getDisplayName(), server.getIP(), server.getUpdateTime(),
+		return new String[] { server.getUniqueID(), server.getDisplayName(), server.getIP(), server.getPort(), server.getUpdateTime(),
 				server.getOwner() };
 	}
 
 	@Override
-	public void registerServer() {
+	public EasyServerCommunication registerServer() {
 		connectToMasterServerIfNotConnected();
 		String displayName = ServerHelpers.getHostname();
 		String ip = ServerHelpers.getOwnIP();
+		String port = ServerHelpers.getPort();
 		String updateTime = ServerHelpers.getTimeNow();
 		String owner = ServerHelpers.getUsername();
-		ServerInterface server = new ServerInformation(null, displayName, ip, updateTime, owner);
-		registerServer(server);
+		
+		ServerInterface server = new ServerInformation(null, displayName, ip,port, updateTime, owner);
+		return registerServer(server);
 	}
 
 	@Override
-	public ServerInterface registerServer(ServerInterface server) {
+	public EasyServerCommunication registerServer(ServerInterface server) {
 		connectToMasterServerIfNotConnected();
 
 //		EasyUpdateAction updateAction = handler.append(parseServerToGoogleSheetServerObjectList(server));
@@ -140,8 +144,7 @@ public class ServerListGoogleSheets implements ServerListInterface {
 		if (response == null)
 			return null;
 		server.setUniqueID(updateAction.getRow());
-		this.connectedServer = server;
-		return this.connectedServer;
+		return server.setupServer();
 	}
 
 	@Override
@@ -162,7 +165,7 @@ public class ServerListGoogleSheets implements ServerListInterface {
 	public boolean unregisterServer(ServerInterface server) {
 		connectToMasterServerIfNotConnected();
 
-		BatchUpdateValuesResponse response = handler.writeIntoRow("B" + server.getUniqueID(), new String[] { "", "", "", "" });
+		BatchUpdateValuesResponse response = handler.writeIntoRow("B" + server.getUniqueID(), new String[] { "", "" , "", "", "" });
 		
 		if(response!=null){
 			this.connectedServer = null;
@@ -176,10 +179,9 @@ public class ServerListGoogleSheets implements ServerListInterface {
 	}
 
 	@Override
-	public boolean connectTo(ServerInterface server) {
+	public EasyServerCommunication connectTo(ServerInterface server) {
 		this.connectedServer = server;
-		Logger.println("Connecting to: "+server.getIP());
-		return server!=null;
+		return server.connectToServerAsClient();
 	}
 
 }

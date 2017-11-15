@@ -65,6 +65,9 @@ public class EasyGoogleSheetsHandler {
 	private final List<String> SCOPES = Arrays.asList(SheetsScopes.SPREADSHEETS);
 
 	public static int maxRetriesForConnectionReset = 10;
+	
+	private static int beginRows = 6;
+	private static int endRows = 10;
 
 	private boolean validSetup = false;
 
@@ -157,8 +160,6 @@ public class EasyGoogleSheetsHandler {
 	}
 
 	private static List<String> allRows;
-	private static int beginRows = 6;
-	private static int endRows = 10;
 
 	static {
 		allRows = new ArrayList<String>();

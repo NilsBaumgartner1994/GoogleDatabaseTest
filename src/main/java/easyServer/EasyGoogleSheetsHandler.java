@@ -190,14 +190,14 @@ public class EasyGoogleSheetsHandler {
 		return occupiedRows;
 	}
 
-	public EasyUpdateAction addInRandomRowData(String... datas) {
+	public EasyGoogleUpdateAction addInRandomRowData(String... datas) {
 		String row = getFreeRow();
 		if (row == null)
 			return null;
 		BatchUpdateValuesResponse response = writeIntoRow("B" + row, datas);
 		if (response == null)
 			return null;
-		return new EasyUpdateAction("B", row, response);
+		return new EasyGoogleUpdateAction("B", row, response);
 	}
 	/**
 	public EasyUpdateAction append(String... dataArr) {

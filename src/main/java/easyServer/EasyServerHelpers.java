@@ -3,7 +3,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
 
-public class ServerHelpers {
+public class EasyServerHelpers {
 	public static String getOwnIP() {
 		InetAddress add;
 		try {

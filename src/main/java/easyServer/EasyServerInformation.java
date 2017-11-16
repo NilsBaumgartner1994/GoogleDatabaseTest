@@ -2,7 +2,7 @@ package easyServer;
 
 import easyBasic.Logger;
 
-public class ServerInformation implements ServerInterface, Comparable<ServerInformation>{
+public class EasyServerInformation implements EasyServerInformationInterface, Comparable<EasyServerInformation>{
 
 	private String displayName;
 	private String ip;
@@ -11,7 +11,7 @@ public class ServerInformation implements ServerInterface, Comparable<ServerInfo
 	private String owner;
 	private String uniqueID;
 	
-	public ServerInformation(String uniqueID, String displayName, String ip, String port,String updateTime, String owner) {
+	public EasyServerInformation(String uniqueID, String displayName, String ip, String port,String updateTime, String owner) {
 		this.setDisplayName(displayName);
 		this.setIP(ip);
 		this.setPort(port);
@@ -81,18 +81,18 @@ public class ServerInformation implements ServerInterface, Comparable<ServerInfo
 	}
 
 	@Override
-	public int compareTo(ServerInformation o) {
+	public int compareTo(EasyServerInformation o) {
 		return this.getUniqueID().compareTo(o.getUniqueID());
 	}
 
 	@Override
-	public EasyServerCommunication connectToServerAsClient() {
-		return new EasyServerCommunication(this,EasyServerCommunication.COMMUNICATIONTYP.CLIENT);
+	public EasyServerCommunicationSend connectToServerAsClient(EasyServerCommunicationReceive receive) {
+		return new EasyServerCommunicationSend(this,EasyServerCommunicationTyp.CLIENT, receive);
 	}
 
 	@Override
-	public EasyServerCommunication setupServer() {
-		return new EasyServerCommunication(this,EasyServerCommunication.COMMUNICATIONTYP.HOST);
+	public EasyServerCommunicationSend setupServer(EasyServerCommunicationReceive receive) {
+		return new EasyServerCommunicationSend(this,EasyServerCommunicationTyp.HOST, receive);
 	}
 	
 

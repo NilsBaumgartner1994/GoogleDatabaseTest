@@ -1,6 +1,7 @@
 package easyFrame;
 
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 public interface EasyFrameInterface {
 	
@@ -16,5 +17,8 @@ public interface EasyFrameInterface {
 	public EasyFrameButton addButton(String text, Runnable function);
 	public EasyFrameButton addButton(EasyFrameButton button);
 	public void removeButton(EasyFrameButton button);
+	public void removeAttribute(JComponent attributeClass);
+	public <T extends JComponent> T addAttribute(T attributeClass);
+	public void addPanel(JPanel panel);
 
 }

@@ -2,13 +2,13 @@ package easyServer;
 
 import com.google.api.services.sheets.v4.model.BatchUpdateValuesResponse;
 
-public class EasyUpdateAction {
+public class EasyGoogleUpdateAction {
 
 	private String column;
 	private String row;
 	private BatchUpdateValuesResponse response;
 
-	public EasyUpdateAction(String column, String row, BatchUpdateValuesResponse response) {
+	public EasyGoogleUpdateAction(String column, String row, BatchUpdateValuesResponse response) {
 		this.column = column;
 		this.row = row;
 		this.response = response;

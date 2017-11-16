@@ -1,6 +1,9 @@
 package easyFrame;
 
 import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -21,17 +24,20 @@ public class EasyFrame implements EasyFrameInterface {
 		ownStatus = new EasyProgressStatus("Create EasyFrame",0);
 		
 		frame = new JFrame();
+		frame.setLayout(new GridLayout(2, 1));
 
 		// make sure the program exits when the frame closes
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setTitle(title);
+		frame.setPreferredSize(new Dimension(width,height));
 		frame.setSize(width, height);
 
 		// This will center the JFrame in the middle of the screen
 		frame.setLocationRelativeTo(null);
+		
 
 		frame.setVisible(true);
-
+		
 		initFrame();
 		
 		this.updateOwnProgressStatus("Create EasyFrame", 100);
@@ -68,7 +74,7 @@ public class EasyFrame implements EasyFrameInterface {
 	private void initFrame() {
 		this.updateOwnProgressStatus("Init Framecontent", 0);
 		
-		panel = new JPanel();
+		panel = new JPanel(new GridLayout(0, 1, 10, 10));
 	
 		// JButton mit Text "Drück mich" wird erstellt
 		EasyFrameButton button = addAttribute(new EasyFrameButton("Drück mich"));
@@ -82,13 +88,21 @@ public class EasyFrame implements EasyFrameInterface {
 		
 		this.updateOwnProgressStatus("Init Framecontent", 100);
 	}
+
+	@Override
+	public void addPanel(JPanel panel){
+		frame.add(panel);
+		frame.pack();
+	}
 	
+	@Override
 	public <T extends JComponent> T addAttribute(T attributeClass){
 		panel.add(attributeClass);
 		frame.pack();
 		return attributeClass;
 	}
 	
+	@Override
 	public void removeAttribute(JComponent attributeClass){
 		panel.remove(attributeClass);
 		frame.pack();

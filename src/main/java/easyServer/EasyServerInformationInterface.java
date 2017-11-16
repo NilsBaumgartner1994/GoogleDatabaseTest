@@ -1,5 +1,5 @@
 package easyServer;
-public interface ServerInterface {
+public interface EasyServerInformationInterface {
 	
 	public String getDisplayName();
 	public String getIP();
@@ -14,7 +14,7 @@ public interface ServerInterface {
 	public void setUniqueID(String uniqueID);
 	public void setPort(String port);
 	
-	public EasyServerCommunication connectToServerAsClient();
-	public EasyServerCommunication setupServer();
+	public EasyServerCommunicationSend connectToServerAsClient(EasyServerCommunicationReceive receive);
+	public EasyServerCommunicationSend setupServer(EasyServerCommunicationReceive receive);
 
 }

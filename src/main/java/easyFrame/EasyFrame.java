@@ -2,6 +2,7 @@ package easyFrame;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +25,8 @@ public class EasyFrame implements EasyFrameInterface {
 		ownStatus = new EasyProgressStatus("Create EasyFrame",0);
 		
 		frame = new JFrame();
+		Image icon = new javax.swing.ImageIcon("assets/images/icon.png").getImage();
+		frame.setIconImage(icon);
 		frame.setLayout(new GridLayout(2, 1));
 
 		// make sure the program exits when the frame closes

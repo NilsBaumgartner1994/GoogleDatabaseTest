@@ -10,6 +10,8 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import com.guigarage.responsive.ResponsiveHandler;
+
 public class EasyFrame implements EasyFrameInterface {
 
 	private JFrame frame;
@@ -23,6 +25,8 @@ public class EasyFrame implements EasyFrameInterface {
 
 	public EasyFrame(String title, int width, int height) {
 		ownStatus = new EasyProgressStatus("Create EasyFrame",0);
+		
+		
 		
 		frame = new JFrame();
 		Image icon = new javax.swing.ImageIcon("assets/images/icon.png").getImage();

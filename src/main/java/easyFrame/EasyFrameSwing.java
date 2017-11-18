@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 
 import com.guigarage.responsive.ResponsiveHandler;
 
-public class EasyFrame implements EasyFrameInterface {
+public class EasyFrameSwing implements EasyFrameInterface {
 
 	private JFrame frame;
 	private JPanel panel;
@@ -23,7 +23,7 @@ public class EasyFrame implements EasyFrameInterface {
 	private static final int defaultHeight = 480 * 2;
 	private static final String defaultTitle = "MyEasyFrame";
 
-	public EasyFrame(String title, int width, int height) {
+	public EasyFrameSwing(String title, int width, int height) {
 		ownStatus = new EasyProgressStatus("Create EasyFrame",0);
 		
 		
@@ -50,11 +50,11 @@ public class EasyFrame implements EasyFrameInterface {
 		this.updateOwnProgressStatus("Create EasyFrame", 100);
 	}
 
-	public EasyFrame() {
+	public EasyFrameSwing() {
 		this(defaultTitle, defaultWidth, defaultHeight);
 	}
 
-	public EasyFrame(String title) {
+	public EasyFrameSwing(String title) {
 		this(title, defaultWidth, defaultHeight);
 	}
 
@@ -83,13 +83,13 @@ public class EasyFrame implements EasyFrameInterface {
 		
 		panel = new JPanel(new GridLayout(0, 1, 10, 10));
 	
-		// JButton mit Text "Drück mich" wird erstellt
-		EasyFrameButton button = addAttribute(new EasyFrameButton("Drück mich"));
+		// JButton mit Text "Drï¿½ck mich" wird erstellt
+		EasyFrameButton button = addAttribute(new EasyFrameButton("Drï¿½ck mich"));
 		EasyTextField field = addAttribute(new EasyTextField(panel,"TestField"));
 		field.setFontSize(24);
 		
 		frame.add(panel);
-		// Fenstergröße wird so angepasst, dass
+		// Fenstergrï¿½ï¿½e wird so angepasst, dass
 		// der Inhalt reinpasst
 		frame.pack();
 		

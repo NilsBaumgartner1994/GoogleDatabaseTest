@@ -12,7 +12,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
-import easyFrame.EasyFrame;
+import easyFrame.EasyFrameSwing;
 import easyFrame.EasyFrameButton;
 import easyFrame.EasyFrameInterface;
 import easyFrame.EasyProgressStatus;
@@ -47,10 +47,11 @@ public class EasyServerGUI {
 	private EasyServerCommunicationSend connection;
 
 
-	public EasyServerGUI(EasyServerCommunicationReceive receive) {
+	public EasyServerGUI(EasyServerCommunicationReceive receive, EasyFrameInterface frame) {
 		this.receive = receive;
 		status = new EasyProgressStatus("SettingupGUI");
-		frame = new EasyFrame("MasterServerTest");
+//		frame = new EasyFrameSwing("MasterServerTest");
+		this.frame = frame;
 
 		createTextArea();
 		addAllCallbackToDisplay();

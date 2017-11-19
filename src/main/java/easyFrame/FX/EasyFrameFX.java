@@ -199,15 +199,15 @@ public class EasyFrameFX implements EasyFrameInterface {
         Panel panel2 = new Panel("This is the title");
         panel2.getStyleClass().add("panel-primary"); 
         
-        content.setCenter(button);
+        panel2.setBody(button);
+        
+        content.setCenter(panel2);
         
         
         panel.setBody(content);
-        
-        panel2.setBody(button);
 
         grid.add(content, 4, 2);
-        grid.add(panel2, 5, 2);
+//        grid.add(panel2, 5, 2);
 
 		return grid;
 	}

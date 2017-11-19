@@ -1,5 +1,7 @@
 package easyFrame.FX;
 
+import easyFrame.FX.EasyFrameFXBootstrapStyles.COLOUR;
+import easyFrame.FX.EasyFrameFXBootstrapStyles.SIZE;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
@@ -7,22 +9,14 @@ import javafx.scene.control.Button;
 public class EasyFrameFXButtonBootstrap extends Button {
 	
 	private static final String styleType = "btn";
-
-	public static enum STYLE {
-		DEFAULT, PRIMARY, SUCCESS, INFO, WARNING, DANGER
-	};
 	
-	public static enum SIZE {
-		LG, SM, XS
-	}
-	
-	private String style;
-	private String size;
+	private COLOUR colour;
+	private SIZE size;
 
 	public EasyFrameFXButtonBootstrap(String string, final Runnable function) {
 		super(string);
-		setBootstrapStyle(STYLE.WARNING);
-		setBootstrapSize(SIZE.LG);
+		setBootstrapColour(COLOUR.WARNING);
+		setBootstrapSize(SIZE.LARGE);
 		setRunnableFunction(function);
 	}
 	
@@ -37,64 +31,21 @@ public class EasyFrameFXButtonBootstrap extends Button {
 		});
 	}
 	
-	private void setBootstrapStyle(STYLE style) {
-		switch (style) {
-		case PRIMARY:
-			setBootstrapStyle("primary");
-			break;
-		case SUCCESS:
-			setBootstrapStyle("success");
-			break;
-		case INFO:
-			setBootstrapStyle("info");
-			break;
-		case WARNING:
-			setBootstrapStyle("warning");
-			break;
-		case DANGER:
-			setBootstrapStyle("danger");
-			break;
-		default:
-			setBootstrapStyle("default");
-			break;
-		}
-		
+	private void setBootstrapColour(EasyFrameFXBootstrapStyles.COLOUR colour) {
+		this.colour = colour;
 		applyStyle();
 	}
 	
-	private void setBootstrapStyle(String style) {
-		this.style = "btn-"+style;
-	}
-	
-	private void setBootstrapSize(SIZE size) {
-		switch (size) {
-		case LG:
-			setColorStyle("lg");
-			break;
-		case SM:
-			setColorStyle("sm");
-			break;
-		case XS:
-			setColorStyle("xs");
-			break;
-		default:
-			setColorStyle("sm");
-			break;
-		}
-		
+	private void setBootstrapSize(EasyFrameFXBootstrapStyles.SIZE size) {
+		this.size = size;
 		applyStyle();
-	}
-	
-	private void setColorStyle(String size) {
-		this.size = styleType+"-"+size;
 	}
 
 	private void applyStyle() {
-		this.getStyleClass().setAll(styleType, this.style, "btn-lg");
-	}
+		String colour = EasyFrameFXBootstrapStyles.getSpecificColorString(styleType, this.colour);
+		String size = EasyFrameFXBootstrapStyles.getSpecificSizeString(styleType, this.size);
 		
-	private void setSizeStyle(String size) {
-		this.style = styleType+"-"+style;
+		this.getStyleClass().setAll(styleType, colour, size);
 	}
 
 }

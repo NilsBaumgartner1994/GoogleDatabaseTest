@@ -9,6 +9,8 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.LayoutStyle;
 
+import org.kordamp.bootstrapfx.scene.layout.Panel;
+
 import com.google.api.client.util.Charsets;
 import com.guigarage.flatterfx.FlatterFX;
 import com.guigarage.responsive.ResponsiveHandler;
@@ -185,6 +187,27 @@ public class EasyFrameFX implements EasyFrameInterface {
 		Text servicesPercent = new Text("Services\n20%");
 		GridPane.setValignment(servicesPercent, VPos.TOP);
 		grid.add(servicesPercent, 3, 2);
+		
+		
+		
+		Panel panel = new Panel("This is the title");
+        panel.getStyleClass().add("panel-primary");
+        BorderPane content = new BorderPane();
+        content.setPadding(new Insets(20));
+        EasyFrameFXButtonBootstrap button = new EasyFrameFXButtonBootstrap("Hello BootstrapFX",null);
+        
+        Panel panel2 = new Panel("This is the title");
+        panel2.getStyleClass().add("panel-primary"); 
+        
+        content.setCenter(button);
+        
+        
+        panel.setBody(content);
+        
+        panel2.setBody(button);
+
+        grid.add(content, 4, 2);
+        grid.add(panel2, 5, 2);
 
 		return grid;
 	}
@@ -339,11 +362,17 @@ public class EasyFrameFX implements EasyFrameInterface {
 
 		// Use a border pane as the root for scene
 		BorderPane border = new BorderPane();
+		
+		
+		
+		
 
 		HBox hbox = addHBox();
 		border.setTop(hbox);
 		border.setLeft(addVBox());
 
+
+		
 		// Add a stack to the HBox in the top region
 		addStackPane(hbox);
 
@@ -360,8 +389,12 @@ public class EasyFrameFX implements EasyFrameInterface {
 		// If both setCenter() calls are executed, the anchor pane from the second
 		// call replaces the grid from the first call
 		border.setCenter(addAnchorPane(addGridPane()));
+//		border.setCenter(addGridPane());
 
 		Scene scene = new Scene(border);
+		scene.getStylesheets().addAll("bootstrapfx.css", "org/kordamp/bootstrapfx/sampler.css",
+				"org/kordamp/bootstrapfx/xml-highlighting.css");
+        scene.getStylesheets().add("bootstrapfx.css");
 		stage.setScene(scene);
 		stage.setTitle("Layout Sample");
 		ResponsiveHandler.addResponsiveToWindow(stage);

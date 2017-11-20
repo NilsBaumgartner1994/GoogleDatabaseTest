@@ -24,5 +24,11 @@ public class Main extends Application {
 		serverGui = new EasyServerGUI(receive, stage);
 		serverGui.show();
 	}
+	
+	@Override
+	public void stop(){
+	    System.out.println("Stage is closing");
+	    // Save file
+	}
 
 }

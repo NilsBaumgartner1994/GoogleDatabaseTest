@@ -63,13 +63,6 @@ public class EasyFrameFX implements EasyFrameInterface {
 	
 	private Stage stage;
 
-	private final TableView<Person> table = new TableView<>();
-	private final ObservableList<Person> data = FXCollections.observableArrayList(
-			new Person("Jacob", "Smith", "jacob.smith@example.com"),
-			new Person("Isabella", "Johnson", "isabella.johnson@example.com"),
-			new Person("Ethan", "Williams", "ethan.williams@example.com"),
-			new Person("Emma", "Jones", "emma.jones@example.com"),
-			new Person("Michael", "Brown", "michael.brown@example.com"));
 	final HBox hb = new HBox();
 
 	public HBox addHBox() {

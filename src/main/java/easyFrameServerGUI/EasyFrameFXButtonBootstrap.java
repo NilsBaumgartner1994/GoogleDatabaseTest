@@ -31,12 +31,12 @@ public class EasyFrameFXButtonBootstrap extends Button {
 		});
 	}
 	
-	private void setBootstrapColour(EasyFrameFXBootstrapStyles.COLOUR colour) {
+	public void setBootstrapColour(EasyFrameFXBootstrapStyles.COLOUR colour) {
 		this.colour = colour;
 		applyStyle();
 	}
 	
-	private void setBootstrapSize(EasyFrameFXBootstrapStyles.SIZE size) {
+	public void setBootstrapSize(EasyFrameFXBootstrapStyles.SIZE size) {
 		this.size = size;
 		applyStyle();
 	}

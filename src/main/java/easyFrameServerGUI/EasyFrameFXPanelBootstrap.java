@@ -1,4 +1,4 @@
-package easyFrame.FX;
+package easyFrameServerGUI;
 
 import org.kordamp.bootstrapfx.scene.layout.Panel;
 

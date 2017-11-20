@@ -1,7 +1,7 @@
-package easyFrame.FX;
+package easyFrameServerGUI;
 
-import easyFrame.FX.EasyFrameFXBootstrapStyles.COLOUR;
-import easyFrame.FX.EasyFrameFXBootstrapStyles.SIZE;
+import easyFrameServerGUI.EasyFrameFXBootstrapStyles.COLOUR;
+import easyFrameServerGUI.EasyFrameFXBootstrapStyles.SIZE;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;

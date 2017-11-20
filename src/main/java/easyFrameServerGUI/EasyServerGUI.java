@@ -1,4 +1,4 @@
-package easyBasic;
+package easyFrameServerGUI;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +12,9 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
+import org.kordamp.bootstrapfx.scene.layout.Panel;
+
+import easyBasic.Logger;
 import easyFrame.EasyFrameSwing;
 import easyFrame.EasyFrameButton;
 import easyFrame.EasyFrameInterface;
@@ -22,71 +25,110 @@ import easyServer.EasyServerCommunicationSend;
 import easyServer.EasyServerInformationInterface;
 import easyServer.EasyServerListGoogleSheet;
 import easyServer.EasyServerListInterface;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.TextArea;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
+import javafx.stage.Stage;
 
 public class EasyServerGUI {
 
 	public EasyServerListInterface serverHandler;
-	public EasyFrameInterface frame;
-	private EasyProgressStatus status;
-
 	private Runnable connectToMasterServer;
-	private EasyFrameButton connectToMasterServerButton;
+	private EasyFrameFXButtonBootstrap connectToMasterServerButton;
 
 	private Runnable listAllServer;
-	private EasyFrameButton listAllServerButton;
+	private EasyFrameFXButtonBootstrap listAllServerButton;
 
 	private Runnable registerServer;
-	private EasyFrameButton registerServerButton;
+	private EasyFrameFXButtonBootstrap registerServerButton;
 
 	private Runnable unregisterServer;
-	private EasyFrameButton unregisterServerButton;
+	private EasyFrameFXButtonBootstrap unregisterServerButton;
 
-	private List<EasyFrameButton> connectToServerButtons = new ArrayList<EasyFrameButton>();
+	private List<EasyFrameFXButtonBootstrap> connectToServerButtons = new ArrayList<EasyFrameFXButtonBootstrap>();
 
 	private EasyServerCommunicationReceive receive;
 	private EasyServerCommunicationSend connection;
+	
+	public Stage stage;
+	public Scene scene;
 
 
-	public EasyServerGUI(EasyServerCommunicationReceive receive, EasyFrameInterface frame) {
+	public EasyServerGUI(EasyServerCommunicationReceive receive, Stage stage) {
 		this.receive = receive;
-		status = new EasyProgressStatus("SettingupGUI");
-//		frame = new EasyFrameSwing("MasterServerTest");
-		this.frame = frame;
-
-		createTextArea();
-		addAllCallbackToDisplay();
-
-		serverHandler = new EasyServerListGoogleSheet(receive);
-		createButtons();
-		Logger.println("ServersRegistered: " + serverHandler.getAmountServers());
-
-		frame.addButton(connectToMasterServerButton);
+		new EasyProgressStatus("SettingupGUI");
+		this.stage = stage;
+		
+		scene = createServerGUIScene();
+		scene.getStylesheets().addAll("bootstrapfx.css", "org/kordamp/bootstrapfx/sampler.css",
+				"org/kordamp/bootstrapfx/xml-highlighting.css");
+		
+		addAllCallbackToDisplay(this.receive);
+		serverHandler = new EasyServerListGoogleSheet(this.receive); //after addAllCallback
 	}
 	
-	JTextArea display;
-	
-	private void createTextArea() {
-		JPanel middlePanel = new JPanel();
-		middlePanel.setBorder(new TitledBorder(new EtchedBorder(), "Connection Information"));
-
-		display = new JTextArea(16, 58);
-		display.setEditable(false); // set textArea non-editable
-		JScrollPane scroll = new JScrollPane(display);
-		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-
-		// Add Textarea in to middle panel
-		middlePanel.add(scroll);
-
-		frame.addPanel(middlePanel);
+	public void show() {
+		this.stage.setScene(scene);
+		this.stage.show();
 	}
 	
-	private void addAllCallbackToDisplay() {
+	public Scene createServerGUIScene() {
+		BorderPane border = new BorderPane();
+		border.setRight(createRightSide());
+		return new Scene(border);
+	}
+	
+	private Node createRightSide() {
+		FlowPane flow = new FlowPane();
+		
+		flow.setPadding(new Insets(5, 0, 5, 0));
+		flow.setVgap(4);
+		flow.setHgap(4);
+		flow.setPrefWrapLength(70); // preferred width allows for two columns
+		flow.setStyle("-fx-background-color: DAE6F3;");
+		
+		flow.getChildren().add(createDebugPanel());
+		flow.getChildren().add(createChatPanel());
+
+		return flow;
+	}
+	
+	TextArea debugTextArea;
+	private Node createDebugPanel() {
+		Panel debugPanel = new Panel("DebugLog");
+        debugPanel.getStyleClass().add("panel-primary"); 
+		
+		debugTextArea = new TextArea();
+		debugTextArea.setMaxWidth(170);
+		debugTextArea.setDisable(true);
+		
+		debugPanel.setBody(debugTextArea);
+		return debugPanel;
+	}
+	
+	private Node createChatPanel() {
+		Panel debugPanel = new Panel("Chatbox");
+        debugPanel.getStyleClass().add("panel-primary"); 
+		
+		TextArea debugTextArea = new TextArea();
+		debugTextArea.setMaxWidth(170);
+		debugTextArea.setDisable(true);
+		
+		debugPanel.setBody(debugTextArea);
+		return debugPanel;
+	}
+	
+	private void addAllCallbackToDisplay(EasyServerCommunicationReceive receive) {
 		for(EasyServerCommunicationReceive.TYPE typ : EasyServerCommunicationReceive.TYPE.values()) {
-			addCallbackToDisplay(typ);
+			addCallbackToDisplay(typ, receive);
 		}
 	}
 	
-	private void addCallbackToDisplay(EasyServerCommunicationReceive.TYPE typ) {
+	private void addCallbackToDisplay(EasyServerCommunicationReceive.TYPE typ, EasyServerCommunicationReceive receive) {
 		receive.setCallbackRunnable(typ, createRunnableReceiveMessage());
 	}
 	
@@ -97,7 +139,7 @@ public class EasyServerGUI {
 			
 			public void run() {
 				if(param!=null && param instanceof String) {
-					display.append((String) param+"\n");
+					debugTextArea.appendText((String) param+"\n");
 				}
 			}
 
@@ -117,16 +159,16 @@ public class EasyServerGUI {
 
 	private void createButtons() {
 		connectToMasterServer = createRunnable(RUNFUNCTION.CONNECTTOMASTERSERVER);
-		connectToMasterServerButton = new EasyFrameButton("Connect", connectToMasterServer);
+		connectToMasterServerButton = new EasyFrameFXButtonBootstrap("Connect", connectToMasterServer);
 
 		registerServer = createRunnable(RUNFUNCTION.REGISTERSERVER);
-		registerServerButton = new EasyFrameButton("Register", registerServer);
+		registerServerButton = new EasyFrameFXButtonBootstrap("Register", registerServer);
 
 		unregisterServer = createRunnable(RUNFUNCTION.UNREGISTERSERVER);
-		unregisterServerButton = new EasyFrameButton("Unregister", unregisterServer);
+		unregisterServerButton = new EasyFrameFXButtonBootstrap("Unregister", unregisterServer);
 
 		listAllServer = createRunnable(RUNFUNCTION.LISTALLSERVER);
-		listAllServerButton = new EasyFrameButton("Get all Server", listAllServer);
+		listAllServerButton = new EasyFrameFXButtonBootstrap("Get all Server", listAllServer);
 	}
 
 	static enum RUNFUNCTION {
@@ -136,9 +178,6 @@ public class EasyServerGUI {
 	public Runnable createRunnable(final RUNFUNCTION func) {
 		return createRunnable(func, null);
 	}
-
-	
-	
 
 	public Runnable createRunnable(final RUNFUNCTION func, final Object param) {
 		Runnable aRunnable = new Runnable() {
@@ -191,10 +230,10 @@ public class EasyServerGUI {
 	}
 
 	private void removeAllConnectToServerButtons() {
-		for (EasyFrameButton button : connectToServerButtons) {
+		for (EasyFrameFXButtonBootstrap button : connectToServerButtons) {
 			frame.removeButton(button);
 		}
-		connectToServerButtons = new ArrayList<EasyFrameButton>();
+		connectToServerButtons = new ArrayList<EasyFrameFXButtonBootstrap>();
 	}
 
 	private void addAllConnectToServerButtons(List<EasyServerInformationInterface> servers) {

@@ -1,4 +1,4 @@
-package easyFrame.FX;
+package easyFrameServerGUI;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -60,6 +60,8 @@ import javafx.util.Callback;
 public class EasyFrameFX implements EasyFrameInterface {
 
 	private static final String pathToGrapthis = "assets/graphics/";
+	
+	private Stage stage;
 
 	private final TableView<Person> table = new TableView<>();
 	private final ObservableList<Person> data = FXCollections.observableArrayList(
@@ -242,161 +244,24 @@ public class EasyFrameFX implements EasyFrameInterface {
 	}
 
 	public EasyFrameFX(Stage stage) {
-		// BorderPane border = new BorderPane();
-		// HBox hbox = addHBox();
-		// border.setTop(hbox);
-		// border.setLeft(addVBox());
-		// addStackPane(hbox); // Add stack to HBox in top region
-		//
-		// border.setCenter(addGridPane());
-		// border.setRight(addFlowPane());
-		//
-		//
-		//
-		// Scene scene = new Scene(new Group());
-		// stage.setTitle("Table View Sample");
-		// stage.setWidth(450);
-		// stage.setHeight(550);
-		//
-		// final Label label = new Label("Address Book");
-		// label.setFont(new Font("Arial", 20));
-		//
-		// table.setEditable(true);
-		//
-		// Callback<TableColumn<Person, String>,
-		// TableCell<Person, String>> cellFactory
-		// = (TableColumn<Person, String> p) -> new EditingCell();
-		//
-		// TableColumn<Person, String> firstNameCol =
-		// new TableColumn<>("First Name");
-		// TableColumn<Person, String> lastNameCol =
-		// new TableColumn<>("Last Name");
-		// TableColumn<Person, String> emailCol =
-		// new TableColumn<>("Email");
-		//
-		// firstNameCol.setMinWidth(100);
-		// firstNameCol.setCellValueFactory(
-		// new PropertyValueFactory<>("firstName"));
-		// firstNameCol.setCellFactory(cellFactory);
-		// firstNameCol.setOnEditCommit(
-		// (CellEditEvent<Person, String> t) -> {
-		// ((Person) t.getTableView().getItems().get(
-		// t.getTablePosition().getRow())
-		// ).setFirstName(t.getNewValue());
-		// });
-		//
-		//
-		// lastNameCol.setMinWidth(100);
-		// lastNameCol.setCellValueFactory(
-		// new PropertyValueFactory<>("lastName"));
-		// lastNameCol.setCellFactory(cellFactory);
-		// lastNameCol.setOnEditCommit(
-		// (CellEditEvent<Person, String> t) -> {
-		// ((Person) t.getTableView().getItems().get(
-		// t.getTablePosition().getRow())
-		// ).setLastName(t.getNewValue());
-		// });
-		//
-		// emailCol.setMinWidth(200);
-		// emailCol.setCellValueFactory(
-		// new PropertyValueFactory<>("email"));
-		// emailCol.setCellFactory(cellFactory);
-		// emailCol.setOnEditCommit(
-		// (CellEditEvent<Person, String> t) -> {
-		// ((Person) t.getTableView().getItems().get(
-		// t.getTablePosition().getRow())
-		// ).setEmail(t.getNewValue());
-		// });
-		//
-		// table.setItems(data);
-		// table.getColumns().addAll(firstNameCol, lastNameCol, emailCol);
-		//
-		// final TextField addFirstName = new TextField();
-		// addFirstName.setPromptText("First Name");
-		// addFirstName.setMaxWidth(firstNameCol.getPrefWidth());
-		// final TextField addLastName = new TextField();
-		// addLastName.setMaxWidth(lastNameCol.getPrefWidth());
-		// addLastName.setPromptText("Last Name");
-		// final TextField addEmail = new TextField();
-		// addEmail.setMaxWidth(emailCol.getPrefWidth());
-		// addEmail.setPromptText("Email");
-		//
-		// final Button addButton = new Button("Add");
-		// addButton.setOnAction((ActionEvent e) -> {
-		// data.add(new Person(
-		// addFirstName.getText(),
-		// addLastName.getText(),
-		// addEmail.getText()));
-		// addFirstName.clear();
-		// addLastName.clear();
-		// addEmail.clear();
-		// });
-		//
-		// hb.getChildren().addAll(addFirstName, addLastName, addEmail, addButton);
-		// hb.setSpacing(3);
-		//
-		// final VBox vbox = new VBox();
-		// vbox.setSpacing(5);
-		// vbox.setPadding(new Insets(10, 0, 0, 10));
-		//
-		//
-		// vbox.getStyleClass().addAll("visible-xs", "visible-sm");
-		// table.getStyleClass().addAll("visible-xs", "visible-sm");
-		// hb.getStyleClass().addAll("visible-xs", "visible-sm");
-		//
-		// vbox.getChildren().addAll(label, table, hb);
-		//
-		//
-		//
-		//
-		// ((Group) scene.getRoot()).getChildren().addAll(vbox);
-		//
-		// stage.setScene(scene);
-		// ResponsiveHandler.addResponsiveToWindow(stage);
-		// stage.show();
-		// FlatterFX.style();
-		//
-		//
-		// list.setItems(items);
-		// list.getStyleClass().addAll("visible-xs", "visible-sm");
-
-		// Use a border pane as the root for scene
+		this.stage = stage;
 		BorderPane border = new BorderPane();
-		
-		
-		
-		
 
 		HBox hbox = addHBox();
 		border.setTop(hbox);
 		border.setLeft(addVBox());
-
-
-		
-		// Add a stack to the HBox in the top region
 		addStackPane(hbox);
-
-		// To see only the grid in the center, uncomment the following statement
-		// comment out the setCenter() call farther down
-		// border.setCenter(addGridPane());
-
-		// Choose either a TilePane or FlowPane for right region and comment out the
-		// one you aren't using
 		border.setRight(addFlowPane());
 		// border.setRight(addTilePane());
 
-		// To see only the grid in the center, comment out the following statement
-		// If both setCenter() calls are executed, the anchor pane from the second
-		// call replaces the grid from the first call
 		border.setCenter(addAnchorPane(addGridPane()));
-//		border.setCenter(addGridPane());
 
 		Scene scene = new Scene(border);
 		scene.getStylesheets().addAll("bootstrapfx.css", "org/kordamp/bootstrapfx/sampler.css",
 				"org/kordamp/bootstrapfx/xml-highlighting.css");
         scene.getStylesheets().add("bootstrapfx.css");
-		stage.setScene(scene);
-		stage.setTitle("Layout Sample");
+		this.stage.setScene(scene);
+		this.stage.setTitle("Layout Sample");
 		ResponsiveHandler.addResponsiveToWindow(stage);
 		stage.show();
 	}
@@ -453,42 +318,6 @@ public class EasyFrameFX implements EasyFrameInterface {
 	public EasyProgressStatus getExternProgressStatus() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public EasyFrameButton addButton(String text, Runnable function) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public EasyFrameButton addButton(EasyFrameButton button) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void removeButton(EasyFrameButton button) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void removeAttribute(JComponent attributeClass) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public <T extends JComponent> T addAttribute(T attributeClass) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void addPanel(JPanel panel) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

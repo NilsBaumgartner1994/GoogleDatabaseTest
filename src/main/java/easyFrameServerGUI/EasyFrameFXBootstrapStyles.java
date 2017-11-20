@@ -1,4 +1,4 @@
-package easyFrame.FX;
+package easyFrameServerGUI;
 
 import javafx.scene.control.Button;
 

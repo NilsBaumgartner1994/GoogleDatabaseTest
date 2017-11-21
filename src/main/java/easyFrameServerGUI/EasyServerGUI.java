@@ -1,23 +1,10 @@
 package easyFrameServerGUI;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
-
 import org.kordamp.bootstrapfx.scene.layout.Panel;
 
 import easyBasic.Logger;
-import easyFrame.EasyFrameSwing;
-import easyFrame.EasyFrameButton;
-import easyFrame.EasyFrameInterface;
 import easyFrame.EasyProgressStatus;
 import easyServer.EasyRunnableParameters;
 import easyServer.EasyServerCommunicationReceive;
@@ -25,15 +12,16 @@ import easyServer.EasyServerCommunicationSend;
 import easyServer.EasyServerInformationInterface;
 import easyServer.EasyServerListGoogleSheet;
 import easyServer.EasyServerListInterface;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
@@ -197,7 +185,6 @@ public class EasyServerGUI {
 			EasyFrameFXButtonBootstrap serverButton = new EasyFrameFXButtonBootstrap(ip,runnable);
 			serverPane.getChildren().add(serverButton);
 		}
-		
 	}
 
 	protected void removeAllConnectToServerButtons() {
@@ -253,8 +240,7 @@ public class EasyServerGUI {
 		}
 	}
 
-	TextField chatInputTextArea;
-
+	
 	private Node createChatPanel(EasyServerCommunicationReceive receive) {
 
 		Panel chatPanel = new Panel("Chatbox");
@@ -264,14 +250,32 @@ public class EasyServerGUI {
 		chatReceiveTextArea.setMaxWidth(rightSideMaxWidth);
 		chatReceiveTextArea.setDisable(true);
 		setTextAreaReceiveCallback(chatReceiveTextArea, receive, EasyServerCommunicationReceive.TYPE.MESSAGE);
-
-		chatInputTextArea = new TextField();
+		
+		TextField chatInputTextArea = new TextField();
 		chatInputTextArea.setMaxWidth(rightSideMaxWidth);
+		setChatInputAreaKeyListener(chatInputTextArea,receive);
 
 		chatPanel.setBody(chatReceiveTextArea);
 		chatPanel.setFooter(chatInputTextArea);
 
 		return chatPanel;
+	}
+	
+	private void setChatInputAreaKeyListener(TextField inputArea,EasyServerCommunicationReceive receive) {
+		inputArea.setOnKeyReleased(new EventHandler<KeyEvent>() {
+		    @Override
+		    public void handle(KeyEvent keyEvent) {
+		        if (keyEvent.getCode() == KeyCode.ENTER)  {
+		            String text = inputArea.getText();
+		            
+		            if(connection != null && connection.isValidSetup()) {
+		            	if(connection.sendMessage(text)) {
+		            		inputArea.setText("");
+		            	}
+		            }
+		        }
+		    }
+		});
 	}
 
 	private void setTextAreaReceiveCallback(TextArea textArea, EasyServerCommunicationReceive receive,

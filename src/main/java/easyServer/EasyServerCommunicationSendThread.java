@@ -78,7 +78,7 @@ public class EasyServerCommunicationSendThread implements Runnable {
 	BufferedWriter bw;
 	BufferedReader br;
 
-	public boolean sendMessage(String message) {
+	public boolean sendOnlyAndNotToMe(String message) {
 		try {
 			bw.write(message);
 			bw.newLine();
@@ -88,8 +88,33 @@ public class EasyServerCommunicationSendThread implements Runnable {
 			e.printStackTrace();
 			return false;
 		}
-
+		
 		return true;
+	}
+	
+	private String getMessagePrefix() {
+		String prefix = "Unknown";
+		
+		if(isHost()) {
+			prefix = EasyServerCommunicationTyp.HOST.toString();
+		}
+		if(isClient()) {
+			prefix = EasyServerCommunicationTyp.CLIENT.toString();
+		}
+		return prefix+": ";
+	}
+	
+	public boolean sendMessage(String message) {
+		message = getMessagePrefix()+message;
+		
+		boolean success = sendOnlyAndNotToMe(message);
+		recieveMessage(message);
+		
+		return success;
+	}
+
+	private void recieveMessage(String message) {
+		callback.receiveMessage(message);
 	}
 
 	private Socket socket;
@@ -131,12 +156,9 @@ public class EasyServerCommunicationSendThread implements Runnable {
 
 				while (holdConnection) {
 					anfrage = br.readLine();
-					callback.receiveMessage(anfrage);
-					antwort = "Antwort auf " + anfrage;
-					sendMessage(antwort);
-
-					closeConnection();
+					recieveMessage(anfrage);
 				}
+				closeConnection();
 			} else {
 				callback.error("Could not create Reader and Writer ! Please try again !");
 			}
@@ -166,17 +188,13 @@ public class EasyServerCommunicationSendThread implements Runnable {
 
 			boolean created = createReaderAndWriter(socket);
 			if (created) {
-
-				String anfrage = "Hallo";
 				String antwort;
 
 				while (holdConnection) {
-					sendMessage(anfrage);
 					antwort = br.readLine();
-					callback.receiveMessage(antwort);
-
-					closeConnection();
+					recieveMessage(antwort);
 				}
+				closeConnection();
 			} else {
 				callback.error("Could not create Reader and Writer ! Please try again !");
 			}
@@ -195,7 +213,7 @@ public class EasyServerCommunicationSendThread implements Runnable {
 
 	private void setupAsClient() {
 		this.validSetup = true;
-		//Clients have nothing to do at the moment
+		// Clients have nothing to do at the moment
 	}
 
 	private boolean createReaderAndWriter(Socket socket) {

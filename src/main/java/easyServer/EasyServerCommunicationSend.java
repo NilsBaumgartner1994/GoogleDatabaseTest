@@ -31,8 +31,8 @@ public class EasyServerCommunicationSend {
 		}
 	}
 
-	public void sendMessage(String message) {
-		send.sendMessage(message);
+	public boolean sendMessage(String message) {
+		return send.sendMessage(message);
 	}
 
 	public boolean isValidSetup() {

@@ -16,8 +16,6 @@ import com.guigarage.flatterfx.FlatterFX;
 import com.guigarage.responsive.ResponsiveHandler;
 
 import easyBasic.Logger;
-import easyFrame.EasyFrameButton;
-import easyFrame.EasyFrameInterface;
 import easyFrame.EasyProgressStatus;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -57,7 +55,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
-public class EasyFrameFX implements EasyFrameInterface {
+public class EasyFrameFX {
 
 	private static final String pathToGrapthis = "assets/graphics/";
 	
@@ -257,60 +255,6 @@ public class EasyFrameFX implements EasyFrameInterface {
 		this.stage.setTitle("Layout Sample");
 		ResponsiveHandler.addResponsiveToWindow(stage);
 		stage.show();
-	}
-
-	@Override
-	public void openWindow() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void closeWindow() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void minimizeWindow() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void maximizeWindow() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setWindowSize(int width, int height) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setWindowVisible(boolean visible) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setExternProgressStatus(EasyProgressStatus status) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public EasyProgressStatus getOwnProgressStatus() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public EasyProgressStatus getExternProgressStatus() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

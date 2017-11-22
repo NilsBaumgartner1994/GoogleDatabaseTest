@@ -1,7 +1,5 @@
 package easyBasic;
 
-import easyFrame.EasyFrameInterface;
-import easyFrameServerGUI.EasyFrameFX;
 import easyFrameServerGUI.EasyServerGUI;
 import easyServer.EasyServerCommunicationReceive;
 import javafx.application.Application;

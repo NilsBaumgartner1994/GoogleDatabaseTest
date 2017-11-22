@@ -1,10 +1,15 @@
 package easyFrameServerGUI;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+
 import org.kordamp.bootstrapfx.scene.layout.Panel;
 
-import easyBasic.Logger;
 import easyFrame.EasyProgressStatus;
 import easyServer.EasyRunnableParameters;
 import easyServer.EasyServerCommunicationReceive;
@@ -26,7 +31,26 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class EasyServerGUI {
-
+	
+	private static final Logger LOGGER = java.util.logging.Logger.getLogger(EasyServerGUI.class.getName());
+	private static FileHandler fh;
+	static {
+		try {
+			fh = new FileHandler("./ServerGUI.log");
+			LOGGER.addHandler(fh);
+			SimpleFormatter formatter = new SimpleFormatter();
+			fh.setFormatter(formatter);
+			
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
 	public EasyServerListInterface serverHandler;
 	private Runnable connectToMasterServer;
 	private EasyFrameFXButtonBootstrap connectToMasterServerButton;
@@ -49,18 +73,22 @@ public class EasyServerGUI {
 	public Scene scene;
 
 	public EasyServerGUI(EasyServerCommunicationReceive receive, Stage stage) {
+		LOGGER.info("Setting up ServerGUI");
 		this.receive = receive;
 		new EasyProgressStatus("SettingupGUI");
 		this.stage = stage;
 
 		scene = createServerGUIScene(this.receive);
+		LOGGER.info("Set Stylesheets to scene");
 		scene.getStylesheets().addAll("bootstrapfx.css", "org/kordamp/bootstrapfx/sampler.css",
 				"org/kordamp/bootstrapfx/xml-highlighting.css");
 
+		LOGGER.info("Create new ServerHandler");
 		serverHandler = new EasyServerListGoogleSheet(this.receive); // after addAllCallback
 	}
 
 	public void show() {
+		LOGGER.info("Show Scene");
 		this.stage.setScene(scene);
 		this.stage.show();
 	}
@@ -160,9 +188,9 @@ public class EasyServerGUI {
 					addAllConnectToServerButtons(servers);
 					break;
 				case CONNECTTOSERVER:
-					Logger.println("Connect to Server");
+					LOGGER.log(Level.INFO, "Connect to Server");
 					if (param instanceof EasyServerInformationInterface) {
-						Logger.println("Its a Server Param");
+						LOGGER.log(Level.INFO, "Param object is a Server", new Object[]{param});
 						EasyServerInformationInterface server = (EasyServerInformationInterface) param;
 						connection = serverHandler.connectTo(server);
 						if (connection != null) {
@@ -178,9 +206,10 @@ public class EasyServerGUI {
 	}
 
 	protected void addAllConnectToServerButtons(List<EasyServerInformationInterface> servers) {
+		LOGGER.log(Level.INFO, "add All Server Buttons", new Object[]{servers});
 		for(EasyServerInformationInterface server : servers) {
+			LOGGER.log(Level.INFO, "Add a Server Button", new Object[]{server});
 			String ip = server.getIP();
-			Logger.println("Found Server: "+ip+" Children: "+serverPane.getChildren().size());
 			Runnable runnable = createControlButtonRunnable(RUNFUNCTION.CONNECTTOSERVER,server,serverPane);
 			EasyFrameFXButtonBootstrap serverButton = new EasyFrameFXButtonBootstrap(ip,runnable);
 			serverPane.getChildren().add(serverButton);
@@ -188,6 +217,7 @@ public class EasyServerGUI {
 	}
 
 	protected void removeAllConnectToServerButtons() {
+		LOGGER.log(Level.INFO, "remove All Server Buttons");
 		serverPane.getChildren().removeAll(serverPane.getChildren());
 	}
 
